@@ -65,7 +65,7 @@
   }
   body.no-spin .record, body.only-play.idle .record { animation-play-state: paused; }
   body.rev .record { animation-direction: reverse; }
-  body.solid .bg { background-image: none !important; background-color: var(--bgc); filter: none; }
+  body.solid .bg { background-image: var(--bgi, none) !important; background-size: cover; background-position: center; background-color: var(--bgc); filter: none; }
   body.solid .veil { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .sheen {
@@ -230,6 +230,44 @@
   .si.h { color: var(--dim); }
   .si.on, .si:hover { background: rgba(255,255,255,.09); }
 
+  /* visualizer, particles, widgets, extras */
+  #fxp { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  #vizbox { position: absolute; left: calc(var(--vx, 50) * 1%); top: calc(var(--vy, 78) * 1%); width: calc(var(--vw, 56) * 1vw); height: var(--vh, 110px); translate: -50% -50%; z-index: 0; pointer-events: none; }
+  #viz { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #vizh { display: none; position: absolute; right: -7px; bottom: -7px; width: 14px; height: 14px; border-radius: 50%; background: #fff; opacity: .85; cursor: nwse-resize; }
+  body.viz-edit #vizbox { z-index: 6; pointer-events: auto; cursor: move; outline: 1px dashed rgba(255,255,255,.55); background: rgba(255,255,255,.04); touch-action: none; }
+  body.viz-edit #vizh { display: block; }
+  body.no-viz #vizbox, body.no-fxp #fxp { display: none; }
+  .widgets { position: absolute; top: 24px; right: 30px; width: 230px; display: flex; flex-direction: column; gap: 10px; z-index: 4; }
+  .w { background: rgba(18,18,18,var(--wo, .6)); border-radius: 12px; padding: 12px 14px; font-size: .85rem; }
+  .wt { color: var(--dim); font-size: .75rem; margin-bottom: 6px; }
+  .big { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sm { color: var(--dim); font-size: .8rem; line-height: 1.45; }
+  .wb { display: flex; gap: 6px; margin-top: 8px; }
+  .w button { flex: 1; padding: 6px; border-radius: 7px; border: 1px solid #3a3a3a; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+  .w ul { list-style: none; padding: 0; } .w li { display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+  .w li span { flex: 1; } .w li.d span { text-decoration: line-through; opacity: .5; }
+  .w li button { flex: none; width: 22px; padding: 0; border: 0; color: var(--dim); }
+  .w input[type=text] { width: 100%; margin-top: 6px; padding: 6px 8px; border-radius: 7px; border: 1px solid #3a3a3a; background: rgba(0,0,0,.25); color: var(--ink); font: inherit; outline: 0; }
+  .bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; margin: 4px 0 8px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: .75rem; }
+  .cal b { color: var(--dim); font-weight: 500; } .cal .t { background: var(--accent); color: #111; border-radius: 50%; }
+  body.hide-pomo #w-pomo, body.hide-todo #w-todo, body.hide-cd #w-cd, body.hide-wc #w-wc, body.hide-year #w-yr, body.hide-cal #w-cal, body.hide-quote #w-q { display: none; }
+  .search, .clock, .links, .notes, .widgets, .gear { transition: opacity .5s; }
+  body.ui-hide .search, body.ui-hide .clock, body.ui-hide .links, body.ui-hide .notes, body.ui-hide .widgets, body.ui-hide .gear { opacity: 0; pointer-events: none; }
+  body.lh .links a { transition: transform .15s; } body.lh .links a:hover { transform: scale(1.18); }
+  body.tl h1 { cursor: pointer; } body.tl h1:hover { text-decoration: underline; text-underline-offset: 6px; }
+  .eq { display: none; width: 14px; height: 12px; align-items: flex-end; gap: 2px; margin-right: 8px; vertical-align: -1px; }
+  body.eq-on:not(.idle) .eq { display: inline-flex; }
+  .eq i { flex: 1; background: var(--accent); animation: eqb .9s ease-in-out infinite alternate; }
+  .eq i:nth-child(2) { animation-delay: -.3s; } .eq i:nth-child(3) { animation-delay: -.6s; }
+  @keyframes eqb { from { height: 20%; } to { height: 100%; } }
+  body.bg-anim .bg { animation: drift 40s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: scale(1.15) rotate(3deg); } }
+  #panel input[type=date] { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: #121212; color: var(--ink); font: inherit; color-scheme: dark; }
+  @media (max-width: 760px) { .widgets { display: none; } }
+
   @media (max-width: 760px) {
     main { --s: min(56vw, 290px); flex-direction: column; text-align: center; gap: 36px; padding: 170px 24px 130px; }
     .search { top: 84px; } .notes, .recent { display: none; } .clock { left: 18px; top: 18px; } .time { font-size: 1.6rem; } .links { max-width: 92vw; }
@@ -249,6 +287,7 @@
   <div class="bg" id="bg"></div>
   <div class="veil" id="veil"></div>
   <div class="fx"></div>
+  <div id="vizbox"><canvas id="viz"></canvas><i id="vizh"></i></div><canvas id="fxp"></canvas>
 
   <form class="search" id="search" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
@@ -259,6 +298,15 @@
   <div class="clock"><div class="hi" id="hi"></div><div class="time" id="time"></div><div class="date" id="date"></div><div class="wx" id="wx"></div></div>
   <nav class="links" id="links"></nav>
   <div class="notes"><textarea id="note" placeholder="Notes" spellcheck="false" aria-label="Notes"></textarea></div>
+  <div class="widgets" id="widgets">
+    <div class="w" id="w-pomo"><div class="wt">Focus timer</div><div class="big" id="pt">25:00</div><div class="wb"><button id="pgo">Start</button><button id="prs">Reset</button></div></div>
+    <div class="w" id="w-todo"><div class="wt">To-do</div><ul id="tl"></ul><input type="text" id="ti" placeholder="Add a task" autocomplete="off"></div>
+    <div class="w" id="w-cd"><div class="wt" id="cdn"></div><div class="big" id="cdv"></div></div>
+    <div class="w" id="w-wc"><div class="wt" id="wcn"></div><div class="big" id="wcv"></div></div>
+    <div class="w" id="w-yr"><div class="wt">Year progress</div><div class="bar"><i id="yrb"></i></div><div class="sm" id="yrt"></div></div>
+    <div class="w" id="w-cal"><div class="wt" id="calt"></div><div class="cal" id="calg"></div></div>
+    <div class="w" id="w-q"><div class="sm" id="qt"></div></div>
+  </div>
 
   <main>
     <div class="scene" id="scene"><div class="deck" id="deck">
@@ -266,7 +314,7 @@
       <div class="sleeve" id="sleeve"></div>
     </div></div>
     <section class="info">
-      <div class="status" id="status">Connecting…</div>
+      <div class="status"><span class="eq"><i></i><i></i><i></i></span><span id="status">Connecting…</span></div>
       <h1 id="title">Nothing playing</h1>
       <p class="artist" id="artist"></p>
       <p class="album" id="album"></p>
@@ -309,6 +357,12 @@
     disc: "vinyl", cdCover: "corner", cdPos: "br", cdCoverSize: 34, cdHue: 0,
     grooveGap: 7, grooveAlpha: 6, shine: 100, shineSpin: 55, marker: "dot", markerAlpha: 45,
     suggest: true, autofill: true, searchBorder: false, history: true, shortcuts: true, newTab: false, sugCount: 6, searchH: 48, searchR: 10, searchOp: 70, searchBlur: 0, searchPos: "top", hist: [],
+    showViz: true, vizStyle: "bars", vizSrc: "sim", vizPos: "bottom", vizColor: "accent", vizRound: true,
+    vizBars: 48, vizGap: 3, vizHeight: 110, vizX: 50, vizY: 78, vizW: 56, vizFrom: "bottom", vizEdit: false, vizGain: 100, vizOp: 35, vizSmooth: .7, vizBpm: 100, pulse: 4, beatGlow: 15, statusEq: true,
+    wPomo: false, wTodo: false, wCd: false, wWc: false, wYear: false, wCal: false, wQuote: false, weekMon: true, pomoMin: 25, pomoSound: true,
+    cdName: "", cdDate: "", wcZone: "America/New_York", quoteCustom: "", todos: [], widgetOp: 60,
+    bgColor2: "#3a2a6a", bgAngle: 135, bgImage: "", bgAnim: false, pOn: false, pCount: 40, pSpeed: 100, pSize: 3, pOp: 40, theme: "",
+    hotkeys: true, clickSpin: true, wheelSpin: true, faviconArt: false, linksNewTab: false, linkHover: true, autoHide: false, hideSecs: 8, titleLink: "none",
     clockPos: "tl", clockSize: 100, linkSize: 46, noteW: 220, noteH: 110, noteOp: 55, titleWeight: 600
   };
   var FONTS = {
@@ -350,7 +404,7 @@
     b.toggle("no-spin", !S.spin);
     b.toggle("no-clock", !S.showClock); b.toggle("no-links", !S.showLinks);
     b.toggle("no-notes", !S.showNotes); b.toggle("no-recent", !S.showRecent);
-    b.toggle("solid", S.bgMode === "color"); b.toggle("rev", S.reverse); b.toggle("only-play", S.onlyPlaying);
+    b.toggle("solid", S.bgMode !== "art"); b.toggle("rev", S.reverse); b.toggle("only-play", S.onlyPlaying);
     r.setProperty("--k", S.vinylSize / 100); r.setProperty("--peek", S.peek / 100);
     r.setProperty("--bgc", S.bgColor); r.setProperty("--font", FONTS[S.font] || FONTS.sans);
     tick(); renderLinks();
@@ -370,6 +424,13 @@
     r.setProperty("--cz", S.clockSize / 100); r.setProperty("--ls", S.linkSize + "px");
     r.setProperty("--nw", S.noteW + "px"); r.setProperty("--nh", S.noteH + "px"); r.setProperty("--no", S.noteOp / 100); r.setProperty("--tw", S.titleWeight);
     document.body.dataset.layout = S.layout; document.body.dataset.align = S.align;
+    ["Pomo", "Todo", "Cd", "Wc", "Year", "Cal", "Quote"].forEach(function (k) { b.toggle("hide-" + k.toLowerCase(), !S["w" + k]); });
+    b.toggle("no-viz", !S.showViz); b.toggle("no-fxp", !S.pOn); b.toggle("eq-on", S.statusEq); b.toggle("bg-anim", S.bgAnim);
+    b.toggle("tl", S.titleLink !== "none"); b.toggle("lh", S.linkHover); D.vpos = S.vizPos;
+    r.setProperty("--vh", S.vizHeight + "px"); r.setProperty("--vx", S.vizX); r.setProperty("--vy", S.vizY); r.setProperty("--vw", S.vizW); b.toggle("viz-edit", S.vizEdit); r.setProperty("--wo", S.widgetOp / 100);
+    r.setProperty("--bgi", S.bgMode === "gradient" ? "linear-gradient(" + S.bgAngle + "deg," + S.bgColor + "," + S.bgColor2 + ")" :
+      (S.bgMode === "image" && S.bgImage ? 'url("' + S.bgImage.replace(/"/g, "%22") + '")' : "none"));
+    widgets(); calendar(); renderTodos(); if (!pomo.run) pomoReset();
     r.setProperty("--spin", S.spinSecs + "s");
     r.setProperty("--blur", S.blur + "px");
     $("veil").style.opacity = S.dim / 100;
@@ -431,14 +492,25 @@
     noteW:      ["Notes width", 140, 420, 5, "px"],
     noteH:      ["Notes height", 60, 300, 5, "px"],
     noteOp:     ["Notes opacity", 0, 100, 1, "%"],
-    titleWeight: ["Title weight", 300, 800, 50, ""]
+    titleWeight: ["Title weight", 300, 800, 50, ""],
+    vizBars: ["Bars / points", 8, 128, 1, ""], vizX: ["Horizontal position", 0, 100, 1, "%"], vizY: ["Vertical position", 0, 100, 1, "%"], vizW: ["Width", 8, 100, 1, "%"], vizGap: ["Bar gap", 0, 12, 1, "px"], vizHeight: ["Height", 40, 800, 10, "px"],
+    vizGain: ["Gain", 20, 300, 5, "%"], vizOp: ["Opacity", 5, 100, 1, "%"], vizSmooth: ["Smoothing", 0.3, 0.95, 0.01, ""], vizBpm: ["Simulated tempo", 60, 180, 1, " bpm"],
+    pulse: ["Beat pulse on vinyl", 0, 15, 1, "%"], beatGlow: ["Beat flash", 0, 60, 1, "%"],
+    pomoMin: ["Focus minutes", 5, 90, 5, ""], widgetOp: ["Widget opacity", 0, 100, 1, "%"],
+    bgAngle: ["Gradient angle", 0, 360, 5, "°"], pCount: ["Particles", 5, 150, 1, ""], pSpeed: ["Particle speed", 10, 300, 5, "%"],
+    pSize: ["Particle size", 1, 10, 1, "px"], pOp: ["Particle opacity", 5, 100, 1, "%"], hideSecs: ["Hide interface after", 2, 60, 1, "s"]
   };
   var toggles = {
     showSearch: "Search bar", showVinyl: "Vinyl", showCover: "Album cover",
     showText: "Track details", showStatus: "Status line", showRecent: "Recently played",
     showClock: "Clock", clock24: "24-hour time", showSeconds: "Seconds", showDate: "Date", showWeather: "Weather",
     showLinks: "Quick links", showNotes: "Notes", showBlur: "Blurred background",
-    suggest: "Search suggestions", autofill: "Inline autofill", searchBorder: "Search bar border", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", threeD: "3D tilt with mouse", invert: "Invert tilt", spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
+    suggest: "Search suggestions", autofill: "Inline autofill", searchBorder: "Search bar border", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", showViz: "Visualizer", vizEdit: "Drag to move, drag the corner dot to resize", vizRound: "Rounded shapes", statusEq: "Animated status bars",
+    wPomo: "Focus timer", wTodo: "To-do list", wCd: "Countdown", wWc: "World clock", wYear: "Year progress", wCal: "Calendar", wQuote: "Daily quote",
+    weekMon: "Week starts Monday", pomoSound: "Timer sound", bgAnim: "Moving background", pOn: "Floating particles",
+    hotkeys: "Keyboard shortcuts", clickSpin: "Click vinyl to pause or play spin", wheelSpin: "Scroll on vinyl to change speed",
+    faviconArt: "Album art as tab icon", linksNewTab: "Links open in new tab", linkHover: "Zoom links on hover", autoHide: "Auto-hide interface",
+    threeD: "3D tilt with mouse", invert: "Invert tilt", spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
   };
 
   function toggleRow(k) {
@@ -462,7 +534,23 @@
       '<p class="hint">Reads what you\'re playing from Last.fm. Get a <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">free API key</a> and <a href="https://www.last.fm/settings/applications" target="_blank" rel="noopener">link your music app</a>.</p>' +
       '<h3>Search</h3>' +
       '<div class="row col"><span>Search engine</span><select id="engine">' + engineOpts + '</select></div>' +
-      '<details class="grp" open><summary>Disc</summary>' +
+      '<details class="grp" open><summary>Visualizer and beat</summary>' + toggleRow("showViz") +
+        sel("vizStyle", "Type", { bars: "Equalizer bars", mirror: "Mirrored bars", segments: "Retro LED blocks", dots: "Dot matrix", spikes: "Spikes", wave: "Sound wave", area: "Smooth mountains", ring: "Circular bars", orb: "Pulsing orb", pulse: "Ripple rings" }) + sel("vizFrom", "Grows", { bottom: "Upward", top: "Downward" }) +
+        sel("vizSrc", "Audio source", { sim: "Simulated (follows play state)", mic: "Microphone (real beat)", system: "Share tab or screen audio (real beat)" }) +
+        sel("vizPreset", "Placement preset", { "": "Choose…", above: "Above quick links", bottom: "Bottom edge", top: "Top edge", full: "Full screen" }).replace('data-k="vizPreset"', 'id="vizPreset"') + toggleRow("vizEdit") + sel("vizColor", "Colour", { accent: "Accent colour", rainbow: "Rainbow" }) +
+        toggleRow("vizRound") + toggleRow("statusEq") + ["vizX", "vizY", "vizW", "vizHeight", "vizBars", "vizGap", "vizGain", "vizOp", "vizSmooth", "vizBpm", "pulse", "beatGlow"].map(sliderRow).join("") +
+        '<p class="hint">Simulated mode is decorative and does not hear your music. A page cannot read other apps directly, so for real beats choose the microphone, or share a browser tab with "Share audio" ticked.</p></details>' +
+      '<details class="grp"><summary>Widgets</summary>' + ["wPomo", "wTodo", "wCd", "wWc", "wYear", "wCal", "wQuote", "weekMon", "pomoSound"].map(toggleRow).join("") +
+        sliderRow("pomoMin") + sliderRow("widgetOp") + txt("cdName", "Countdown name") + txt("cdDate", "Countdown date", "date") +
+        txt("wcZone", "World clock zone (e.g. Asia/Tokyo)") + txt("quoteCustom", "Your own quote (blank = daily quote)") + '</details>' +
+      '<details class="grp"><summary>Background extras</summary>' + col("bgColor2", "Gradient second colour") + sliderRow("bgAngle") + txt("bgImage", "Image URL") +
+        toggleRow("bgAnim") + toggleRow("pOn") + ["pCount", "pSpeed", "pSize", "pOp"].map(sliderRow).join("") + '</details>' +
+      '<details class="grp"><summary>Interaction and themes</summary>' +
+        sel("theme", "Theme", { "": "Choose…", Midnight: "Midnight", Sunset: "Sunset", Forest: "Forest", Rose: "Rose", Mono: "Mono", Art: "Album art" }).replace('data-k="theme"', 'id="theme"') +
+        sel("titleLink", "Clicking the title opens", { none: "Nothing", youtube: "YouTube search", spotify: "Spotify search", lastfm: "Last.fm page" }) +
+        ["hotkeys", "clickSpin", "wheelSpin", "faviconArt", "linksNewTab", "linkHover", "autoHide"].map(toggleRow).join("") + sliderRow("hideSecs") +
+        '<button class="reset" id="fs">Toggle fullscreen (F)</button></details>' +
+      '<details class="grp"><summary>Disc</summary>' +
         sel("disc", "Type", { vinyl: "Vinyl record", cd: "CD" }) +
         sel("cdCover", "CD album cover", { off: "None", corner: "In a corner", sleeve: "Behind the disc" }) +
         sel("cdPos", "Corner position", { tl: "Top left", tr: "Top right", bl: "Bottom left", br: "Bottom right" }) +
@@ -486,18 +574,18 @@
         ["radius", "shadow", "labelSize", "titleSize", "gap", "searchW", "vignette", "grain"].map(sliderRow).join("") + '</details>' +
       '<h3>Personal</h3>' + txt('name', 'Your name') + txt('city', 'Weather city') +
       sel('units', 'Temperature', { c: 'Celsius', f: 'Fahrenheit' }) + sel('font', 'Font', { sans: 'Sans', serif: 'Serif', mono: 'Mono' }) +
-      '<h3>Background</h3>' + sel('bgMode', 'Style', { art: 'Album art', color: 'Solid colour' }) +
+      '<h3>Background</h3>' + sel('bgMode', 'Style', { art: 'Album art', color: 'Solid colour', gradient: 'Gradient', image: 'Image URL' }) +
       '<div class="row"><span>Colour</span><input type="color" data-k="bgColor" value="' + esc(S.bgColor) + '"></div>' +
       '<h3>Quick links</h3>' + S.links.map(function (l, i) { return '<div class="row"><span>' + esc(l.n) + '</span><button class="x" data-del="' + i + '" aria-label="Remove">×</button></div>'; }).join("") +
       '<div class="mini"><input type="text" id="ln" placeholder="Name"><input type="text" id="lu" placeholder="site.com"><button class="reset" id="ladd" style="margin:0;width:auto">Add</button></div>' +
-      '<h3>Show</h3>' + Object.keys(toggles).filter(function (k) { return ["threeD", "invert", "suggest", "autofill", "searchBorder", "history", "shortcuts", "newTab"].indexOf(k) < 0; }).map(toggleRow).join("") +
+      '<h3>Show</h3>' + ["showSearch", "showVinyl", "showCover", "showText", "showStatus", "showRecent", "showClock", "clock24", "showSeconds", "showDate", "showWeather", "showLinks", "showNotes", "showBlur", "spin", "reverse", "onlyPlaying"].map(toggleRow).join("") +
       '<h3>Vinyl and background</h3>' + ["spinSecs", "vinylSize", "peek", "blur", "dim", "pollSecs"].map(sliderRow).join("") +
       '<h3>Colour</h3>' + ["brightness", "contrast", "gamma", "saturate", "hue", "gray"].map(sliderRow).join("") +
       sel('preset', 'Preset', Object.assign({ '': 'Choose…' }, Object.keys(PRESETS).reduce(function (o, k) { o[k] = k; return o; }, {}))).replace('data-k="preset"', 'id="preset"') +
       '<div class="two"><button class="reset" id="reset">Reset</button><button class="reset" id="export">Export</button><button class="reset" id="import">Import</button></div>' +
       '<p class="hint">Export copies your settings, including your API key. Keep it private.</p>';
   }
-  function txt(k, label) { return '<div class="row col"><span>' + label + '</span><input type="text" data-k="' + k + '" autocomplete="off" value="' + esc(S[k]) + '"></div>'; }
+  function txt(k, label, type) { return '<div class="row col"><span>' + label + '</span><input type="' + (type || "text") + '" data-k="' + k + '" autocomplete="off" value="' + esc(S[k]) + '"></div>'; }
   function sel(k, label, opts) {
     return '<div class="row col"><span>' + label + '</span><select data-k="' + k + '">' + Object.keys(opts).map(function (v) {
       return '<option value="' + v + '"' + (S[k] === v ? " selected" : "") + '>' + opts[v] + '</option>'; }).join("") + '</select></div>';
@@ -522,15 +610,19 @@
   panel.addEventListener("change", function (e) {
     var el = e.target;
     if (el.id === "user" || el.id === "key") { S.user = $("user").value.trim(); S.key = $("key").value.trim(); save(); start(); }
+    else if (el.id === "vizPreset") { if (el.value) placePreset(el.value); }
+    else if (el.id === "theme") { if (THEMES[el.value]) { Object.assign(S, THEMES[el.value]); save(); apply(); build(); } }
     else if (el.id === "preset") { if (PRESETS[el.value]) { Object.assign(S, PRESETS[el.value]); save(); apply(); build(); } }
     else if (el.dataset.k) {
       S[el.dataset.k] = el.value.trim ? el.value.trim() : el.value; save(); apply();
       if (el.dataset.k === "city" || el.dataset.k === "units") weather();
+      if (el.dataset.k === "vizSrc") audioStart();
     } else if (el.dataset.s === "pollSecs") start();
   });
   panel.addEventListener("click", function (e) {
     var d = e.target.dataset;
     if (e.target.id === "close") closePanel();
+    if (e.target.id === "fs") toggleFs();
     if (d.del) { S.links.splice(+d.del, 1); save(); build(); renderLinks(); }
     if (e.target.id === "ladd") {
       var n = $("ln").value.trim(), u = $("lu").value.trim();
@@ -543,7 +635,7 @@
     }
     if (e.target.id === "reset") {
       Object.keys(DEF).forEach(function (k) {
-        if (["user", "key", "demo", "links", "note", "name", "city", "engine", "hist"].indexOf(k) < 0) S[k] = DEF[k];
+        if (["user", "key", "demo", "links", "note", "name", "city", "engine", "hist", "todos"].indexOf(k) < 0) S[k] = DEF[k];
       });
       save(); apply(); build();
     }
@@ -555,7 +647,9 @@
     if (e.key === "Escape") closePanel();
     var t = e.target.tagName;
     if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
+    if (!S.hotkeys) return;
     if (e.key === "/") { e.preventDefault(); $("q").focus(); }
+    else if (e.key === "f" || e.key === "F") toggleFs();
     else if (e.key === ",") { panel.classList.contains("open") ? closePanel() : openPanel(); }
   });
 
@@ -566,6 +660,7 @@
     $("label").style.backgroundImage = v;
     $("sleeve").style.backgroundImage = v;
     $("bg").style.backgroundImage = v;
+    fav.href = S.faviconArt && url ? url : DEFFAV;
   }
   var shown = false;
   var HID = { fade: { opacity: 0 }, slide: { opacity: 0, transform: "translateX(-40px)" },
@@ -589,6 +684,7 @@
     setTimeout(fin, half + 150);
   }
   function render(t, playing) {
+    isPlaying = playing; cur = t;
     document.body.classList.toggle("idle", !playing);
     $("status").textContent = playing ? "Now playing" : (t ? "Last played" : "Not connected");
     if (!t) {
@@ -668,7 +764,7 @@
     S.links.forEach(function (l) {
       var a = document.createElement("a"), ic = document.createElement("span"), img = new Image(), host = "";
       try { host = new URL(l.u).hostname; } catch (e) {}
-      a.href = l.u; ic.className = "ic"; img.alt = "";
+      a.href = l.u; if (S.linksNewTab) { a.target = "_blank"; a.rel = "noopener"; } ic.className = "ic"; img.alt = "";
       img.src = "https://www.google.com/s2/favicons?sz=64&domain=" + host;
       img.onerror = function () { img.remove(); ic.textContent = l.n.charAt(0).toUpperCase(); };
       ic.appendChild(img); a.appendChild(ic);
@@ -773,20 +869,223 @@
 
   $("note").value = S.note;
   $("note").addEventListener("input", function () { S.note = $("note").value; save(); });
+  /* ---------- audio, visualizer, particles, widgets, extras ---------- */
+  var isPlaying = false, cur = null, bass = 0, sm = new Float32Array(0), AC = null, an = null, bins = null, stream = null, lastMove = Date.now(), pts = [];
+  var DEFFAV = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>💿</text></svg>";
+  var fav = document.createElement("link"); fav.rel = "icon"; fav.href = DEFFAV; document.head.appendChild(fav);
+  var THEMES = {
+    Midnight: { bgMode: "color", bgColor: "#0b0d14", accent: "#7aa2ff", textColor: "#e8ecff", vinylColor: "#0d0f18" },
+    Sunset: { bgMode: "gradient", bgColor: "#2a1038", bgColor2: "#ff6a3d", bgAngle: 160, accent: "#ffb36b", textColor: "#fff4ea", vinylColor: "#140a1c" },
+    Forest: { bgMode: "gradient", bgColor: "#0c1a14", bgColor2: "#2f5d46", bgAngle: 150, accent: "#9be3b5", textColor: "#eaf6ee", vinylColor: "#0b1410" },
+    Rose: { bgMode: "gradient", bgColor: "#2b1020", bgColor2: "#c2547c", bgAngle: 140, accent: "#ffb3cd", textColor: "#fff0f5", vinylColor: "#1a0b12" },
+    Mono: { bgMode: "color", bgColor: "#111111", accent: "#ffffff", textColor: "#f2f2f2", vinylColor: "#0a0a0a" },
+    Art: { bgMode: "art", accent: "#ededed", textColor: "#ededed", vinylColor: "#0e0e0e" }
+  };
+  var QUOTES = ["Small steps, every day.", "Begin where you are.", "Done is better than perfect.", "Rest is part of the work.", "Make something you would want to use.",
+    "Focus on the next right thing.", "Curiosity beats certainty.", "Slow is smooth, smooth is fast.", "You only need to start.", "Good things take a little time."];
+  function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+  function stopAudio() { if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; an = null; if (AC) { AC.close(); AC = null; } }
+  async function audioStart() {
+    stopAudio();
+    if (S.vizSrc === "sim") return;
+    try {
+      var st = S.vizSrc === "mic" ? await navigator.mediaDevices.getUserMedia({ audio: true })
+                                  : await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      if (!st.getAudioTracks().length) { st.getTracks().forEach(function (t) { t.stop(); }); $("status").textContent = "No audio was shared. Tick Share audio when picking a tab."; return; }
+      AC = new (window.AudioContext || window.webkitAudioContext)(); an = AC.createAnalyser(); an.fftSize = 1024; an.smoothingTimeConstant = .75;
+      AC.createMediaStreamSource(st).connect(an); bins = new Uint8Array(an.frequencyBinCount); stream = st;
+    } catch (e) { $("status").textContent = "Couldn't start audio: " + (e.message || e.name); }
+  }
+  document.addEventListener("click", function () { if (S.vizSrc !== "sim" && !an) audioStart(); }, { once: true });
+  function spectrum(n, t) {
+    var o = new Float32Array(n), i;
+    if (an) {
+      an.getByteFrequencyData(bins);
+      var u = Math.floor(bins.length * .7);
+      for (i = 0; i < n; i++) {
+        var a = Math.floor(Math.pow(i / n, 2) * u), b = Math.max(a + 1, Math.floor(Math.pow((i + 1) / n, 2) * u)), sum = 0;
+        for (var j = a; j < b; j++) sum += bins[j];
+        o[i] = sum / (b - a) / 255;
+      }
+    } else if (isPlaying) {
+      var beat = Math.pow(Math.abs(Math.sin(t / 60000 * S.vizBpm * Math.PI)), 6);
+      for (i = 0; i < n; i++) o[i] = ((Math.sin(t / 230 + i * .7) + Math.sin(t / 410 + i * 1.7) + 2) / 4 * .6 + beat * .4) * (1 - i / n * .55);
+    }
+    return o;
+  }
+  function drawViz(t) {
+    if (!S.showViz) return;
+    var c = $("viz"), g = c.getContext("2d"), w = c.clientWidth, h = c.clientHeight, d = window.devicePixelRatio || 1, n = S.vizBars, i, k;
+    if (c.width !== Math.round(w * d) || c.height !== Math.round(h * d)) { c.width = Math.round(w * d); c.height = Math.round(h * d); }
+    g.setTransform(d, 0, 0, d, 0, 0); g.clearRect(0, 0, w, h);
+    if (S.vizFrom === "top") { g.translate(0, h); g.scale(1, -1); }
+    var lv = spectrum(n, t); if (sm.length !== n) sm = new Float32Array(n);
+    var avg = 0; for (i = 0; i < n; i++) { sm[i] += (lv[i] - sm[i]) * (1 - S.vizSmooth); avg += sm[i]; } avg /= n;
+    var A = S.vizOp / 100, st = S.vizStyle, gain = S.vizGain / 100, bw = w / n, m = Math.min(w, h), mx2 = w / 2, my2 = h / 2;
+    var col = function (q) { return S.vizColor === "rainbow" ? "hsl(" + (q / n * 300) + ",80%,62%)" : S.accent; };
+    var lvl = function (j) { return Math.min(1, sm[j] * gain); };
+    g.globalAlpha = A;
+    if (st === "bars" || st === "mirror" || st === "spikes") {
+      for (i = 0; i < n; i++) {
+        var bh = lvl(i) * h * (st === "mirror" ? .5 : 1), x = i * bw + S.vizGap / 2, bwid = Math.max(1, bw - S.vizGap);
+        var y = st === "mirror" ? h / 2 - bh : h - bh, hh = st === "mirror" ? bh * 2 : bh;
+        g.fillStyle = col(i); g.beginPath();
+        if (st === "spikes") { g.moveTo(x, h); g.lineTo(x + bwid / 2, h - bh); g.lineTo(x + bwid, h); g.closePath(); }
+        else if (S.vizRound && g.roundRect) g.roundRect(x, y, bwid, hh, Math.min(bwid / 2, 6)); else g.rect(x, y, bwid, hh);
+        g.fill();
+      }
+    } else if (st === "segments" || st === "dots") {
+      var rows = st === "dots" ? 8 : Math.max(4, Math.floor(h / 14)), rh = h / rows;
+      for (i = 0; i < n; i++) {
+        var lit = Math.round(lvl(i) * rows), x2 = i * bw + S.vizGap / 2, w2 = Math.max(1, bw - S.vizGap);
+        g.fillStyle = col(i);
+        for (k = 0; k < lit; k++) {
+          var y2 = h - (k + 1) * rh; g.beginPath();
+          if (st === "dots") g.arc(x2 + w2 / 2, y2 + rh / 2, Math.max(1, Math.min(w2, rh) / 2 - 1), 0, 7); else g.rect(x2, y2 + 1, w2, rh - 2);
+          g.fill();
+        }
+      }
+    } else if (st === "wave") {
+      g.lineWidth = 3; g.strokeStyle = col(n / 2); g.lineJoin = "round"; g.beginPath();
+      for (i = 0; i < n; i++) { var yy = h / 2 + Math.sin(i * .5 + t / 300) * lvl(i) * h * .45; if (i) g.lineTo(i * bw + bw / 2, yy); else g.moveTo(bw / 2, yy); }
+      g.stroke();
+    } else if (st === "area") {
+      g.beginPath(); g.moveTo(0, h);
+      for (i = 0; i < n; i++) {
+        var px = i * bw + bw / 2, py = h - lvl(i) * h, nx = (i + 1) * bw + bw / 2, ny = h - lvl(Math.min(n - 1, i + 1)) * h;
+        if (!i) g.lineTo(0, py); g.quadraticCurveTo(px, py, (px + nx) / 2, (py + ny) / 2);
+      }
+      g.lineTo(w, h); g.closePath(); g.globalAlpha = A * .6; g.fillStyle = col(n / 3); g.fill();
+    } else if (st === "orb") {
+      var R2 = m * .26, L2 = m * .2; g.beginPath();
+      for (i = 0; i <= n; i++) {
+        var j = i % n, a3 = j / n * Math.PI * 2 - Math.PI / 2, r3 = R2 + lvl(Math.min(j, n - 1 - j)) * L2;
+        if (i) g.lineTo(mx2 + Math.cos(a3) * r3, my2 + Math.sin(a3) * r3); else g.moveTo(mx2 + Math.cos(a3) * r3, my2 + Math.sin(a3) * r3);
+      }
+      g.closePath(); g.globalAlpha = A * .55; g.fillStyle = col(n / 2); g.fill(); g.globalAlpha = A; g.lineWidth = 2; g.strokeStyle = col(n / 2); g.stroke();
+    } else if (st === "pulse") {
+      g.lineWidth = 2 + avg * gain * 8;
+      for (k = 1; k <= 5; k++) {
+        g.globalAlpha = A * (1 - k / 6); g.strokeStyle = col(k * n / 6); g.beginPath();
+        g.arc(mx2, my2, m / 2 * (k / 5) * (.55 + Math.min(1, avg * gain * 2) * .45), 0, 7); g.stroke();
+      }
+    } else {
+      var R = m * .32, L = m * .22 * gain;
+      g.lineWidth = Math.max(2, 2 * Math.PI * R / n * .5); g.lineCap = S.vizRound ? "round" : "butt";
+      for (i = 0; i < n; i++) {
+        var a2 = i / n * Math.PI * 2 - Math.PI / 2, l = sm[i] * L; g.strokeStyle = col(i); g.beginPath();
+        g.moveTo(mx2 + Math.cos(a2) * R, my2 + Math.sin(a2) * R); g.lineTo(mx2 + Math.cos(a2) * (R + l), my2 + Math.sin(a2) * (R + l)); g.stroke();
+      }
+    }
+    g.globalAlpha = 1;
+  }
+  function drawP(t) {
+    if (!S.pOn) return;
+    var c = $("fxp"), g = c.getContext("2d"), w = c.clientWidth, h = c.clientHeight;
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    while (pts.length < S.pCount) pts.push({ x: Math.random(), y: Math.random(), r: Math.random(), s: .3 + Math.random() * .7, a: Math.random() * 6 });
+    pts.length = S.pCount; g.clearRect(0, 0, w, h); g.fillStyle = "rgba(255,255,255," + S.pOp / 100 + ")";
+    pts.forEach(function (p) {
+      p.y -= p.s * S.pSpeed / 100 * .0006 * 16; if (p.y < -.05) { p.y = 1.05; p.x = Math.random(); }
+      g.beginPath(); g.arc((p.x + Math.sin(t / 2500 + p.a) * .01) * w, p.y * h, .4 * S.pSize + p.r * S.pSize * .6, 0, 7); g.fill();
+    });
+  }
+  function widgets() {
+    var d = new Date();
+    $("cdn").textContent = S.cdName || "Countdown";
+    if (S.cdDate) { var days = Math.ceil((new Date(S.cdDate + "T00:00") - d) / 864e5); $("cdv").textContent = days > 1 ? days + " days" : days === 1 ? "1 day" : days === 0 ? "Today" : "Passed"; } else $("cdv").textContent = "Set a date";
+    try { $("wcn").textContent = S.wcZone.split("/").pop().replace(/_/g, " "); $("wcv").textContent = d.toLocaleTimeString([], { timeZone: S.wcZone, hour: "2-digit", minute: "2-digit", hour12: !S.clock24 }); } catch (e) { $("wcn").textContent = "World clock"; $("wcv").textContent = "Bad zone"; }
+    var y0 = new Date(d.getFullYear(), 0, 1), y1 = new Date(d.getFullYear() + 1, 0, 1), pc = (d - y0) / (y1 - y0) * 100;
+    $("yrb").style.width = pc + "%"; $("yrt").textContent = d.getFullYear() + " is " + pc.toFixed(1) + "% done";
+    $("qt").textContent = S.quoteCustom || QUOTES[Math.floor((d - y0) / 864e5) % QUOTES.length];
+  }
+  function calendar() {
+    var d = new Date(), y = d.getFullYear(), m = d.getMonth(), f = new Date(y, m, 1).getDay(), off = S.weekMon ? (f + 6) % 7 : f, n = new Date(y, m + 1, 0).getDate(), hd = S.weekMon ? "MTWTFSS" : "SMTWTFS", h = "", i;
+    for (i = 0; i < 7; i++) h += "<b>" + hd[i] + "</b>";
+    for (i = 0; i < off; i++) h += "<span></span>";
+    for (i = 1; i <= n; i++) h += "<span" + (i === d.getDate() ? ' class="t"' : "") + ">" + i + "</span>";
+    $("calt").textContent = d.toLocaleDateString([], { month: "long", year: "numeric" }); $("calg").innerHTML = h;
+  }
+  function renderTodos() {
+    var ul = $("tl"); ul.innerHTML = "";
+    S.todos.forEach(function (t, i) {
+      var li = document.createElement("li"), cb = document.createElement("input"), sp = document.createElement("span"), x = document.createElement("button");
+      li.className = t.d ? "d" : ""; cb.type = "checkbox"; cb.checked = !!t.d; cb.dataset.i = i; sp.textContent = t.t; x.textContent = "×"; x.dataset.x = i;
+      li.appendChild(cb); li.appendChild(sp); li.appendChild(x); ul.appendChild(li);
+    });
+  }
+  $("w-todo").addEventListener("change", function (e) { if (e.target.dataset.i) { S.todos[+e.target.dataset.i].d = e.target.checked; save(); renderTodos(); } });
+  $("w-todo").addEventListener("click", function (e) { if (e.target.dataset.x) { S.todos.splice(+e.target.dataset.x, 1); save(); renderTodos(); } });
+  $("ti").addEventListener("keydown", function (e) { if (e.key === "Enter" && this.value.trim()) { S.todos.push({ t: this.value.trim(), d: false }); this.value = ""; save(); renderTodos(); } });
+  var pomo = { left: 0, run: false, id: null };
+  function pomoShow() { var m = Math.floor(pomo.left / 60), s2 = pomo.left % 60; $("pt").textContent = (m < 10 ? "0" : "") + m + ":" + (s2 < 10 ? "0" : "") + s2; $("pgo").textContent = pomo.run ? "Pause" : "Start"; }
+  function pomoReset() { clearInterval(pomo.id); pomo.run = false; pomo.left = S.pomoMin * 60; pomoShow(); }
+  function beep() {
+    if (!S.pomoSound) return;
+    try { var a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value = 880;
+      g.gain.setValueAtTime(.2, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + 1.2); o.start(); o.stop(a.currentTime + 1.2); } catch (e) {}
+  }
+  $("pgo").onclick = function () {
+    if (pomo.run) { clearInterval(pomo.id); pomo.run = false; }
+    else { pomo.run = true; pomo.id = setInterval(function () { if (--pomo.left <= 0) { clearInterval(pomo.id); pomo.run = false; pomo.left = 0; beep(); } pomoShow(); }, 1000); }
+    pomoShow();
+  };
+  $("prs").onclick = pomoReset;
+  $("title").addEventListener("click", function () {
+    if (!cur || S.titleLink === "none") return;
+    var a = encodeURIComponent(cur.artist), n = encodeURIComponent(cur.name), q = encodeURIComponent(cur.artist + " " + cur.name);
+    var u = { youtube: "https://www.youtube.com/results?search_query=" + q, spotify: "https://open.spotify.com/search/" + q, lastfm: "https://www.last.fm/music/" + a + "/_/" + n }[S.titleLink];
+    if (u) window.open(u, "_blank");
+  });
+  $("deck").addEventListener("click", function () { if (S.clickSpin) { S.spin = !S.spin; save(); apply(); } });
+  $("deck").addEventListener("wheel", function (e) {
+    if (!S.wheelSpin) return; e.preventDefault();
+    S.spinSecs = Math.min(12, Math.max(1, +(S.spinSecs + (e.deltaY > 0 ? .3 : -.3)).toFixed(1))); save(); apply();
+  }, { passive: false });
+  ["mousemove", "keydown", "touchstart"].forEach(function (ev) { document.addEventListener(ev, function () { lastMove = Date.now(); }); });
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+  function placePreset(name) {
+    var P = { above: { vizX: 50, vizY: 78, vizW: 56, vizHeight: 110 }, bottom: { vizX: 50, vizW: 100, vizHeight: 160 }, top: { vizX: 50, vizW: 100, vizHeight: 160 },
+              full: { vizX: 50, vizY: 50, vizW: 100, vizHeight: innerHeight } };
+    Object.assign(S, P[name]);
+    if (name === "bottom") S.vizY = 100 - S.vizHeight / 2 / innerHeight * 100;
+    if (name === "top") S.vizY = S.vizHeight / 2 / innerHeight * 100;
+    save(); apply(); build();
+  }
+  var vbox = $("vizbox"), drag = null;
+  vbox.addEventListener("pointerdown", function (e) {
+    if (!S.vizEdit) return; e.preventDefault(); vbox.setPointerCapture(e.pointerId);
+    drag = { r: e.target.id === "vizh", x: e.clientX, y: e.clientY, X: S.vizX, Y: S.vizY, W: S.vizW, H: S.vizHeight };
+  });
+  vbox.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (drag.r) { S.vizW = clamp(Math.round(drag.W + dx * 2 / innerWidth * 100), 8, 100); S.vizHeight = clamp(Math.round(drag.H + dy * 2), 40, 800); }
+    else { S.vizX = clamp(Math.round((drag.X + dx / innerWidth * 100) * 10) / 10, 0, 100); S.vizY = clamp(Math.round((drag.Y + dy / innerHeight * 100) * 10) / 10, 0, 100); }
+    var r = document.documentElement.style;
+    r.setProperty("--vx", S.vizX); r.setProperty("--vy", S.vizY); r.setProperty("--vw", S.vizW); r.setProperty("--vh", S.vizHeight + "px");
+  });
+  vbox.addEventListener("pointerup", function () { if (drag) { drag = null; save(); if (panel.classList.contains("open")) build(); } });
+
   var mx = 0, my = 0, cx = 0, cy = 0, deck = $("deck"), infoEl = document.querySelector(".info"), bgEl = $("bg");
   document.addEventListener("mousemove", function (e) { mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1; });
   document.documentElement.addEventListener("mouseleave", function () { mx = 0; my = 0; });
   function frame(t) {
     cx += (mx - cx) * S.smooth; cy += (my - cy) * S.smooth;
     var k = S.invert ? -1 : 1, f = Math.sin(t / 1400) * S.float;
-    deck.style.transform = "translateY(" + f.toFixed(2) + "px)" + (S.threeD ? " rotateX(" + (-cy * S.tilt * k).toFixed(2) + "deg) rotateY(" + (cx * S.tilt * k).toFixed(2) + "deg)" : "");
+    var l8 = (S.pulse || S.beatGlow) ? spectrum(8, t) : null; bass += ((l8 ? (l8[0] + l8[1] + l8[2]) / 3 : 0) - bass) * .35;
+    deck.style.transform = "translateY(" + f.toFixed(2) + "px)" + (S.threeD ? " rotateX(" + (-cy * S.tilt * k).toFixed(2) + "deg) rotateY(" + (cx * S.tilt * k).toFixed(2) + "deg)" : "") + " scale(" + (1 + bass * S.pulse / 100).toFixed(4) + ")";
+    $("veil").style.opacity = Math.max(0, S.dim / 100 - bass * S.beatGlow / 100);
+    drawViz(t); drawP(t);
+    document.body.classList.toggle("ui-hide", S.autoHide && Date.now() - lastMove > S.hideSecs * 1000 && !panel.classList.contains("open") && document.activeElement !== qEl);
     deck.style.setProperty("--gx", (50 + cx * 45) + "%"); deck.style.setProperty("--gy", (50 + cy * 45) + "%");
     bgEl.style.translate = (-cx * S.bgShift).toFixed(1) + "px " + (-cy * S.bgShift).toFixed(1) + "px";
     infoEl.style.translate = (cx * S.textShift).toFixed(1) + "px " + (cy * S.textShift).toFixed(1) + "px";
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  setInterval(tick, 1000);
+  setInterval(function () { tick(); widgets(); }, 1000);
   setInterval(weather, 900000);
   try { apply(); } catch (err) { console.error(err); $("status").textContent = "Settings error: " + err.message; }
   start();
