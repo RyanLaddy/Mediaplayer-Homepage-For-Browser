@@ -99,12 +99,17 @@
     position: absolute; top: 28px; left: 50%; translate: -50% 0; z-index: 5;
     width: min(var(--sw), 90vw); height: var(--sh); padding: 0 16px;
     display: flex; align-items: center; gap: 12px;
-    background: rgba(18,18,18,var(--so)); backdrop-filter: blur(var(--sb)); border: 1px solid #3a3a3a; border-radius: var(--sr);
+    background: rgba(18,18,18,var(--so)); backdrop-filter: blur(var(--sb)); border: 1px solid transparent; border-radius: var(--sr);
   }
-  .search:focus-within { border-color: #777; }
+  .search:focus-within { background: rgba(18,18,18,calc(var(--so) + .12)); }
+  body.sb-on .search { border-color: #3a3a3a; }
+  body.sb-on .search:focus-within { border-color: #777; }
   .search svg { flex: none; width: 17px; height: 17px; stroke: var(--dim); fill: none; stroke-width: 2; stroke-linecap: round; }
   .search input { flex: 1; min-width: 0; height: 100%; background: none; border: 0; outline: 0; color: var(--ink); font: inherit; }
   .search input::placeholder { color: var(--dim); }
+  .search input:focus, .search input:focus-visible { outline: 0; box-shadow: none; }
+  .search input { caret-color: var(--ink); }
+  .search input::selection { background: rgba(255,255,255,.22); color: var(--ink); }
   body.no-search .search { display: none; }
   body.no-search main { padding-top: 40px; }
 
@@ -303,7 +308,7 @@
     radius: 4, shadow: 50, labelSize: 36, titleSize: 100, gap: 100, searchW: 560, vignette: 30, grain: 0,
     disc: "vinyl", cdCover: "corner", cdPos: "br", cdCoverSize: 34, cdHue: 0,
     grooveGap: 7, grooveAlpha: 6, shine: 100, shineSpin: 55, marker: "dot", markerAlpha: 45,
-    suggest: true, history: true, shortcuts: true, newTab: false, sugCount: 6, searchH: 48, searchR: 10, searchOp: 70, searchBlur: 0, searchPos: "top", hist: [],
+    suggest: true, autofill: true, searchBorder: false, history: true, shortcuts: true, newTab: false, sugCount: 6, searchH: 48, searchR: 10, searchOp: 70, searchBlur: 0, searchPos: "top", hist: [],
     clockPos: "tl", clockSize: 100, linkSize: 46, noteW: 220, noteH: 110, noteOp: 55, titleWeight: 600
   };
   var FONTS = {
@@ -355,7 +360,7 @@
     r.setProperty("--vig", S.vignette / 100); r.setProperty("--grain", S.grain / 100);
     r.setProperty("--ink", S.textColor); r.setProperty("--accent", S.accent); r.setProperty("--vc", S.vinylColor);
     var cd = S.disc === "cd";
-    b.toggle("cd", cd); b.toggle("cd-solo", cd && S.cdCover !== "sleeve");
+    b.toggle("sb-on", S.searchBorder); b.toggle("cd", cd); b.toggle("cd-solo", cd && S.cdCover !== "sleeve");
     b.toggle("cdc-off", cd && S.cdCover === "off"); b.toggle("cd-corner", cd && S.cdCover === "corner");
     var D = document.body.dataset; D.mark = S.marker; D.cpos = S.cdPos; D.spos = S.searchPos; D.clock = S.clockPos;
     r.setProperty("--cs", S.cdCoverSize / 100); r.setProperty("--cdh", S.cdHue + "deg");
@@ -433,7 +438,7 @@
     showText: "Track details", showStatus: "Status line", showRecent: "Recently played",
     showClock: "Clock", clock24: "24-hour time", showSeconds: "Seconds", showDate: "Date", showWeather: "Weather",
     showLinks: "Quick links", showNotes: "Notes", showBlur: "Blurred background",
-    suggest: "Search suggestions", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", threeD: "3D tilt with mouse", invert: "Invert tilt", spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
+    suggest: "Search suggestions", autofill: "Inline autofill", searchBorder: "Search bar border", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", threeD: "3D tilt with mouse", invert: "Invert tilt", spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
   };
 
   function toggleRow(k) {
@@ -463,7 +468,7 @@
         sel("cdPos", "Corner position", { tl: "Top left", tr: "Top right", bl: "Bottom left", br: "Bottom right" }) +
         sel("marker", "Rotation marker", { none: "None", dot: "Dot", line: "Line" }) +
         ["cdCoverSize", "cdHue", "grooveGap", "grooveAlpha", "shine", "shineSpin", "markerAlpha"].map(sliderRow).join("") + '</details>' +
-      '<details class="grp"><summary>Search bar</summary>' + toggleRow("suggest") + toggleRow("history") + toggleRow("shortcuts") + toggleRow("newTab") +
+      '<details class="grp"><summary>Search bar</summary>' + toggleRow("suggest") + toggleRow("autofill") + toggleRow("searchBorder") + toggleRow("history") + toggleRow("shortcuts") + toggleRow("newTab") +
         sel("searchPos", "Position", { top: "Top", bottom: "Bottom" }) +
         ["sugCount", "searchH", "searchR", "searchOp", "searchBlur"].map(sliderRow).join("") +
         '<p class="hint">Shortcuts: start with g, d, b, y, w or s and a space to use Google, DuckDuckGo, Bing, YouTube, Wikipedia or Brave for that search.</p></details>' +
@@ -485,7 +490,7 @@
       '<div class="row"><span>Colour</span><input type="color" data-k="bgColor" value="' + esc(S.bgColor) + '"></div>' +
       '<h3>Quick links</h3>' + S.links.map(function (l, i) { return '<div class="row"><span>' + esc(l.n) + '</span><button class="x" data-del="' + i + '" aria-label="Remove">×</button></div>'; }).join("") +
       '<div class="mini"><input type="text" id="ln" placeholder="Name"><input type="text" id="lu" placeholder="site.com"><button class="reset" id="ladd" style="margin:0;width:auto">Add</button></div>' +
-      '<h3>Show</h3>' + Object.keys(toggles).filter(function (k) { return ["threeD", "invert", "suggest", "history", "shortcuts", "newTab"].indexOf(k) < 0; }).map(toggleRow).join("") +
+      '<h3>Show</h3>' + Object.keys(toggles).filter(function (k) { return ["threeD", "invert", "suggest", "autofill", "searchBorder", "history", "shortcuts", "newTab"].indexOf(k) < 0; }).map(toggleRow).join("") +
       '<h3>Vinyl and background</h3>' + ["spinSecs", "vinylSize", "peek", "blur", "dim", "pollSecs"].map(sliderRow).join("") +
       '<h3>Colour</h3>' + ["brightness", "contrast", "gamma", "saturate", "hue", "gray"].map(sliderRow).join("") +
       sel('preset', 'Preset', Object.assign({ '': 'Choose…' }, Object.keys(PRESETS).reduce(function (o, k) { o[k] = k; return o; }, {}))).replace('data-k="preset"', 'id="preset"') +
@@ -717,19 +722,48 @@
         var seen = {}; hist.forEach(function (h) { seen[h] = 1; });
         var out = hItems.concat(r.filter(function (t) { return !seen[t]; }).map(function (t) { return { t: t }; })).slice(0, S.sugCount);
         showSug(out);
+        if (S.autofill && !lastDel && document.activeElement === qEl) autofill(typed, out.map(function (o) { return o.t; }));
       } catch (x) {}
     }, 150);
   }
   function mark() { Array.prototype.forEach.call(box.children, function (c, i) { c.classList.toggle("on", i === sugIdx); }); }
-  qEl.addEventListener("input", suggest);
+  var typed = "", lastDel = false;
+  function autofill(v, cands) {
+    if (!v || qEl.value !== v) return;
+    var lo = v.toLowerCase();
+    for (var i = 0; i < cands.length; i++) {
+      var c = cands[i];
+      if (c.length > v.length && c.toLowerCase().indexOf(lo) === 0) {
+        qEl.value = v + c.slice(v.length);
+        qEl.setSelectionRange(v.length, qEl.value.length);
+        return;
+      }
+    }
+  }
+  function localCands() {
+    var c = (S.hist || []).slice();
+    S.links.forEach(function (l) { try { c.push(new URL(l.u).hostname.replace(/^www\./, "")); } catch (e) {} });
+    return c;
+  }
+  qEl.addEventListener("input", function (e) {
+    typed = qEl.value; lastDel = /^delete/.test(e.inputType || "");
+    suggest();
+    if (S.autofill && !lastDel) autofill(typed, localCands());
+  });
   qEl.addEventListener("focus", suggest);
   qEl.addEventListener("blur", function () { setTimeout(hideSug, 120); });
   qEl.addEventListener("keydown", function (e) {
+    var hasSel = qEl.selectionEnd > qEl.selectionStart && qEl.selectionEnd === qEl.value.length;
+    if (e.key === "Tab" && hasSel) { e.preventDefault(); qEl.setSelectionRange(qEl.value.length, qEl.value.length); return; }
+    if (e.key === "Escape") { if (hasSel) qEl.value = typed; hideSug(); return; }
     if (box.style.display !== "block") return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault(); var n = sugList.length;
-      sugIdx = e.key === "ArrowDown" ? (sugIdx + 1) % n : (sugIdx - 1 + n) % n; mark();
-    } else if (e.key === "Escape") hideSug();
+      if (sugIdx === -1) typed = hasSel ? qEl.value.slice(0, qEl.selectionStart) : qEl.value;
+      sugIdx = e.key === "ArrowDown" ? (sugIdx + 1 >= n ? -1 : sugIdx + 1) : (sugIdx - 1 < -1 ? n - 1 : sugIdx - 1);
+      qEl.value = sugIdx >= 0 ? sugList[sugIdx].t : typed;
+      mark();
+    }
   });
   $("search").addEventListener("submit", function (e) {
     e.preventDefault();
