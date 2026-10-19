@@ -16,6 +16,8 @@
     --line: #2e2e2e;
     --s: calc(min(44vmin, 340px) * var(--k, 1));
     --peek: .5; --bgc: #161616;
+    --shadow: .5; --gloss: .6; --radius: 4px; --label: 36%; --tsize: 1; --gapk: 1; --sw: 560px;
+    --vig: .3; --grain: 0; --persp: 1100px; --depth: 24; --accent: #ededed; --vc: #0e0e0e;
     --spin: 3.2s;
     --blur: 70px;
     --font: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -37,7 +39,7 @@
   main {
     position: relative; min-height: 100%;
     display: flex; align-items: center; justify-content: center;
-    gap: clamp(40px, 7vw, 110px);
+    gap: calc(clamp(40px, 7vw, 110px) * var(--gapk));
     padding: 110px 6vw 40px;
   }
 
@@ -45,16 +47,16 @@
   .deck { position: relative; width: calc(var(--s) * (1 + var(--peek))); height: var(--s); flex: none; }
   .sleeve {
     position: absolute; inset: 0 auto auto 0; z-index: 2;
-    width: var(--s); height: var(--s); border-radius: 4px;
+    width: var(--s); height: var(--s); border-radius: var(--radius);
     background: #262626 center / cover;
-    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    box-shadow: 0 24px 60px rgba(0,0,0,var(--shadow));
   }
   .disc { position: absolute; top: 0; left: calc(var(--s) * var(--peek)); width: var(--s); height: var(--s); z-index: 1; }
   .record {
     position: absolute; inset: 0; border-radius: 50%;
     background:
       radial-gradient(circle, transparent 0 38%, rgba(0,0,0,.55) 38.4%, transparent 39.5%),
-      repeating-radial-gradient(circle, #0b0b0b 0 2px, #151515 2px 3.5px);
+      repeating-radial-gradient(circle, var(--vc) 0 2px, color-mix(in srgb, var(--vc) 82%, white) 2px 3.5px);
     animation: spin var(--spin) linear infinite;
   }
   body.no-spin .record, body.only-play.idle .record { animation-play-state: paused; }
@@ -67,7 +69,7 @@
     background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.09) 14%, transparent 22%, transparent 55%, rgba(255,255,255,.07) 64%, transparent 72%);
   }
   .label {
-    position: absolute; top: 50%; left: 50%; width: 36%; aspect-ratio: 1; translate: -50% -50%;
+    position: absolute; top: 50%; left: 50%; width: var(--label); aspect-ratio: 1; translate: -50% -50%;
     border-radius: 50%; background: #3a3a3a center / cover;
   }
   .label::after {
@@ -82,7 +84,7 @@
   /* text */
   .info { max-width: 460px; min-width: 0; }
   .status { font-size: .9rem; color: var(--dim); margin-bottom: 14px; }
-  h1 { font-weight: 600; font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.05; letter-spacing: -.025em; text-wrap: balance; }
+  h1 { font-weight: 600; font-size: calc(clamp(2.1rem, 4.6vw, 3.6rem) * var(--tsize)); line-height: 1.05; letter-spacing: -.025em; text-wrap: balance; }
   .artist { font-size: 1.25rem; margin-top: 14px; }
   .album { color: var(--dim); margin-top: 4px; }
   body.no-text .info { display: none; }
@@ -91,7 +93,7 @@
   /* search */
   .search {
     position: absolute; top: 28px; left: 50%; translate: -50% 0; z-index: 5;
-    width: min(560px, 90vw); height: 48px; padding: 0 16px;
+    width: min(var(--sw), 90vw); height: 48px; padding: 0 16px;
     display: flex; align-items: center; gap: 12px;
     background: rgba(18,18,18,.7); border: 1px solid #3a3a3a; border-radius: 10px;
   }
@@ -133,10 +135,10 @@
     width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line);
     background: #121212; color: var(--ink); font: inherit; font-size: .9rem;
   }
-  #panel input[type=range] { width: 100%; accent-color: #ededed; }
+  #panel input[type=range] { width: 100%; accent-color: var(--accent); }
   .sw { appearance: none; flex: none; width: 36px; height: 20px; border-radius: 10px; background: #3a3a3a; position: relative; cursor: pointer; transition: background .15s; }
   .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #bbb; transition: translate .15s, background .15s; }
-  .sw:checked { background: #ededed; }
+  .sw:checked { background: var(--accent); }
   .sw:checked::after { translate: 16px 0; background: #1a1a1a; }
   .hint { font-size: .8rem; color: var(--dim); line-height: 1.5; margin-top: 8px; }
   .hint a { color: var(--ink); }
@@ -164,6 +166,28 @@
   .two { display: flex; gap: 10px; margin-top: 22px; }
   .two .reset { margin-top: 0; }
 
+  /* 3D scene, effects, layout */
+  .scene { perspective: var(--persp); flex: none; }
+  .deck { transform-style: preserve-3d; will-change: transform; }
+  .sleeve { translate: 0 0 calc(var(--depth) * 1px); }
+  .disc { translate: 0 0 calc(var(--depth) * -1px); }
+  .sleeve::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(circle at var(--gx, 30%) var(--gy, 20%), rgba(255,255,255,calc(var(--gloss) * .4)), transparent 60%);
+  }
+  .fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,var(--vig)) 100%); }
+  .fx::after {
+    content: ""; position: absolute; inset: 0; opacity: var(--grain); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  body[data-layout=flip] main { flex-direction: row-reverse; }
+  body[data-layout=stack] main { flex-direction: column; text-align: center; }
+  body[data-align=center] .info { text-align: center; }
+  .grp { border-bottom: 1px solid var(--line); }
+  .grp summary { cursor: pointer; list-style: none; font-size: .85rem; color: var(--dim); padding: 14px 0 10px; }
+  .grp[open] summary { color: var(--ink); }
+  .grp[open] { padding-bottom: 10px; }
+
   @media (max-width: 760px) {
     main { --s: min(56vw, 290px); flex-direction: column; text-align: center; gap: 36px; padding: 170px 24px 130px; }
     .search { top: 84px; } .notes, .recent { display: none; } .clock { left: 18px; top: 18px; } .time { font-size: 1.6rem; } .links { max-width: 92vw; }
@@ -182,6 +206,7 @@
 <div id="page">
   <div class="bg" id="bg"></div>
   <div class="veil" id="veil"></div>
+  <div class="fx"></div>
 
   <form class="search" id="search" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
@@ -193,10 +218,10 @@
   <div class="notes"><textarea id="note" placeholder="Notes" spellcheck="false" aria-label="Notes"></textarea></div>
 
   <main>
-    <div class="deck">
+    <div class="scene" id="scene"><div class="deck" id="deck">
       <div class="disc"><div class="record"><div class="label" id="label"></div></div><div class="sheen"></div></div>
       <div class="sleeve" id="sleeve"></div>
-    </div>
+    </div></div>
     <section class="info">
       <div class="status" id="status">Connecting…</div>
       <h1 id="title">Nothing playing</h1>
@@ -232,7 +257,11 @@
     ],
     showNotes: true, note: "", showRecent: true,
     bgMode: "art", bgColor: "#161616", vinylSize: 100, peek: 50,
-    reverse: false, onlyPlaying: false, pollSecs: 10
+    reverse: false, onlyPlaying: false, pollSecs: 10,
+    threeD: true, invert: false, tilt: 14, depth: 24, persp: 1100, smooth: .08, float: 6, gloss: 60, bgShift: 24, textShift: 8,
+    tStyle: "vinyl", tMs: 700, ease: "cubic-bezier(.2,.8,.2,1)",
+    layout: "row", align: "left", textColor: "#ededed", accent: "#ededed", vinylColor: "#0e0e0e",
+    radius: 4, shadow: 50, labelSize: 36, titleSize: 100, gap: 100, searchW: 560, vignette: 30, grain: 0
   };
   var FONTS = {
     sans: '"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
@@ -277,6 +306,12 @@
     r.setProperty("--k", S.vinylSize / 100); r.setProperty("--peek", S.peek / 100);
     r.setProperty("--bgc", S.bgColor); r.setProperty("--font", FONTS[S.font] || FONTS.sans);
     tick(); renderLinks();
+    r.setProperty("--persp", S.persp + "px"); r.setProperty("--depth", S.depth); r.setProperty("--gloss", S.gloss / 100);
+    r.setProperty("--radius", S.radius + "px"); r.setProperty("--shadow", S.shadow / 100); r.setProperty("--label", S.labelSize + "%");
+    r.setProperty("--tsize", S.titleSize / 100); r.setProperty("--gapk", S.gap / 100); r.setProperty("--sw", S.searchW + "px");
+    r.setProperty("--vig", S.vignette / 100); r.setProperty("--grain", S.grain / 100);
+    r.setProperty("--ink", S.textColor); r.setProperty("--accent", S.accent); r.setProperty("--vc", S.vinylColor);
+    document.body.dataset.layout = S.layout; document.body.dataset.align = S.align;
     r.setProperty("--spin", S.spinSecs + "s");
     r.setProperty("--blur", S.blur + "px");
     $("veil").style.opacity = S.dim / 100;
@@ -303,14 +338,31 @@
     gray:       ["Grayscale", 0, 100, 1, "%"],
     vinylSize:  ["Vinyl size", 60, 140, 1, "%"],
     peek:       ["Vinyl peek", 15, 90, 1, "%"],
-    pollSecs:   ["Check music every", 1, 60, 1, "s"]
+    pollSecs:   ["Check music every", 1, 60, 1, "s"],
+    tilt:       ["Tilt strength", 0, 35, 1, "°"],
+    depth:      ["Layer depth", 0, 120, 1, "px"],
+    persp:      ["Perspective", 300, 3000, 10, "px"],
+    smooth:     ["Smoothing (lower = silkier)", 0.02, 0.3, 0.01, ""],
+    float:      ["Floating motion", 0, 30, 1, "px"],
+    gloss:      ["Cover gloss", 0, 100, 1, "%"],
+    bgShift:    ["Background parallax", 0, 100, 1, "px"],
+    textShift:  ["Text parallax", 0, 60, 1, "px"],
+    tMs:        ["Transition length", 0, 2000, 50, "ms"],
+    radius:     ["Cover corner radius", 0, 40, 1, "px"],
+    shadow:     ["Cover shadow", 0, 100, 1, "%"],
+    labelSize:  ["Vinyl label size", 20, 60, 1, "%"],
+    titleSize:  ["Title size", 60, 160, 1, "%"],
+    gap:        ["Spacing", 0, 200, 5, "%"],
+    searchW:    ["Search bar width", 300, 900, 10, "px"],
+    vignette:   ["Vignette", 0, 100, 1, "%"],
+    grain:      ["Film grain", 0, 100, 1, "%"]
   };
   var toggles = {
     showSearch: "Search bar", showVinyl: "Vinyl", showCover: "Album cover",
     showText: "Track details", showStatus: "Status line", showRecent: "Recently played",
     showClock: "Clock", clock24: "24-hour time", showSeconds: "Seconds", showDate: "Date", showWeather: "Weather",
     showLinks: "Quick links", showNotes: "Notes", showBlur: "Blurred background",
-    spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
+    threeD: "3D tilt with mouse", invert: "Invert tilt", spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
   };
 
   function toggleRow(k) {
@@ -334,13 +386,23 @@
       '<p class="hint">Reads what you\'re playing from Last.fm. Get a <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">free API key</a> and <a href="https://www.last.fm/settings/applications" target="_blank" rel="noopener">link your music app</a>.</p>' +
       '<h3>Search</h3>' +
       '<div class="row col"><span>Search engine</span><select id="engine">' + engineOpts + '</select></div>' +
+      '<details class="grp" open><summary>3D and motion</summary>' + toggleRow("threeD") + toggleRow("invert") +
+        ["tilt", "depth", "persp", "smooth", "float", "gloss", "bgShift", "textShift"].map(sliderRow).join("") + '</details>' +
+      '<details class="grp"><summary>Song transitions</summary>' +
+        sel("tStyle", "Style", { none: "None", fade: "Fade", slide: "Slide", blur: "Blur", zoom: "Zoom", vinyl: "Vinyl slide" }) +
+        sel("ease", "Easing", { "ease": "Ease", "ease-in-out": "Ease in-out", "linear": "Linear", "cubic-bezier(.2,.8,.2,1)": "Smooth" }) +
+        sliderRow("tMs") + '</details>' +
+      '<details class="grp"><summary>Layout and style</summary>' +
+        sel("layout", "Layout", { row: "Cover left", flip: "Cover right", stack: "Stacked" }) + sel("align", "Text alignment", { left: "Left", center: "Centre" }) +
+        col("textColor", "Text colour") + col("accent", "Accent") + col("vinylColor", "Vinyl colour") +
+        ["radius", "shadow", "labelSize", "titleSize", "gap", "searchW", "vignette", "grain"].map(sliderRow).join("") + '</details>' +
       '<h3>Personal</h3>' + txt('name', 'Your name') + txt('city', 'Weather city') +
       sel('units', 'Temperature', { c: 'Celsius', f: 'Fahrenheit' }) + sel('font', 'Font', { sans: 'Sans', serif: 'Serif', mono: 'Mono' }) +
       '<h3>Background</h3>' + sel('bgMode', 'Style', { art: 'Album art', color: 'Solid colour' }) +
       '<div class="row"><span>Colour</span><input type="color" data-k="bgColor" value="' + esc(S.bgColor) + '"></div>' +
       '<h3>Quick links</h3>' + S.links.map(function (l, i) { return '<div class="row"><span>' + esc(l.n) + '</span><button class="x" data-del="' + i + '" aria-label="Remove">×</button></div>'; }).join("") +
       '<div class="mini"><input type="text" id="ln" placeholder="Name"><input type="text" id="lu" placeholder="site.com"><button class="reset" id="ladd" style="margin:0;width:auto">Add</button></div>' +
-      '<h3>Show</h3>' + Object.keys(toggles).map(toggleRow).join("") +
+      '<h3>Show</h3>' + Object.keys(toggles).filter(function (k) { return k !== "threeD" && k !== "invert"; }).map(toggleRow).join("") +
       '<h3>Vinyl and background</h3>' + ["spinSecs", "vinylSize", "peek", "blur", "dim", "pollSecs"].map(sliderRow).join("") +
       '<h3>Colour</h3>' + ["brightness", "contrast", "gamma", "saturate", "hue", "gray"].map(sliderRow).join("") +
       sel('preset', 'Preset', Object.assign({ '': 'Choose…' }, Object.keys(PRESETS).reduce(function (o, k) { o[k] = k; return o; }, {}))).replace('data-k="preset"', 'id="preset"') +
@@ -352,6 +414,7 @@
     return '<div class="row col"><span>' + label + '</span><select data-k="' + k + '">' + Object.keys(opts).map(function (v) {
       return '<option value="' + v + '"' + (S[k] === v ? " selected" : "") + '>' + opts[v] + '</option>'; }).join("") + '</select></div>';
   }
+  function col(k, l) { return '<div class="row"><span>' + l + '</span><input type="color" data-k="' + k + '" value="' + esc(S[k]) + '"></div>'; }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
 
   panel.addEventListener("input", function (e) {
@@ -364,6 +427,7 @@
       if (el.dataset.t === "demo") start();
       if (el.dataset.t === "showWeather") weather();
     } else if (el.id === "engine") { S.engine = el.value; }
+    else if (el.type === "color") { S[el.dataset.k] = el.value; }
     else return;
     save(); apply();
   });
@@ -390,9 +454,9 @@
       if (j) { try { Object.assign(S, JSON.parse(j)); save(); apply(); build(); start(); weather(); } catch (x) { alert("That isn't valid settings text."); } }
     }
     if (e.target.id === "reset") {
-      ["spinSecs","blur","dim","brightness","contrast","saturate","hue","gamma","gray",
-       "showSearch","showVinyl","showCover","showText","showStatus","showBlur","spin"]
-        .forEach(function (k) { S[k] = DEF[k]; });
+      Object.keys(DEF).forEach(function (k) {
+        if (["user", "key", "demo", "links", "note", "name", "city", "engine"].indexOf(k) < 0) S[k] = DEF[k];
+      });
       save(); apply(); build();
     }
   });
@@ -415,6 +479,27 @@
     $("sleeve").style.backgroundImage = v;
     $("bg").style.backgroundImage = v;
   }
+  var shown = false;
+  var HID = { fade: { opacity: 0 }, slide: { opacity: 0, transform: "translateX(-40px)" },
+              blur: { opacity: 0, filter: "blur(16px)" }, zoom: { opacity: 0, transform: "scale(.9)" } };
+  function swap(update) {
+    var st = S.tStyle;
+    if (st === "none" || !shown || !S.tMs) { update(); shown = true; return; }
+    var sl = $("sleeve"), di = document.querySelector(".disc"), inf = document.querySelector(".info");
+    var items = st === "vinyl"
+      ? [[sl, HID.zoom], [di, { transform: "translateX(-50%)" }], [inf, HID.slide], [$("bg"), { opacity: .3 }]]
+      : [[sl, HID[st]], [di, HID[st]], [inf, HID[st]], [$("bg"), { opacity: .3 }]];
+    var half = S.tMs / 2, done = false;
+    var outs = items.map(function (p) { return p[0].animate([p[1]], { duration: half, easing: S.ease, fill: "forwards" }); });
+    function fin() {
+      if (done) return; done = true;
+      update();
+      items.forEach(function (p) { p[0].animate([p[1]], { duration: half, easing: S.ease, direction: "reverse" }); });
+      outs.forEach(function (o) { o.cancel(); });
+    }
+    Promise.all(outs.map(function (o) { return o.finished; })).then(fin, fin);
+    setTimeout(fin, half + 150);
+  }
   function render(t, playing) {
     document.body.classList.toggle("idle", !playing);
     $("status").textContent = playing ? "Now playing" : (t ? "Last played" : "Not connected");
@@ -424,12 +509,16 @@
       document.title = "Home"; setArt(""); lastId = ""; setRecent([]);
       return;
     }
-    $("title").textContent = t.name;
-    $("artist").textContent = t.artist;
-    $("album").textContent = t.album;
     document.title = (playing ? "♪ " : "") + t.name + " – " + t.artist;
     var id = t.name + "|" + t.artist + "|" + t.art;
-    if (id !== lastId) { lastId = id; setArt(t.art); }
+    if (id === lastId) return;
+    lastId = id;
+    function go() {
+      swap(function () {
+        $("title").textContent = t.name; $("artist").textContent = t.artist; $("album").textContent = t.album; setArt(t.art);
+      });
+    }
+    if (t.art) { var im = new Image(); im.onload = im.onerror = go; im.src = t.art; } else go();
   }
   async function poll() {
     if (S.demo) { render({ name: "Midnight City", artist: "M83", album: "Hurry Up, We're Dreaming", art: "" }, true); setRecent(["Daft Punk – Digital Love", "Röyksopp – Remind Me", "Justice – D.A.N.C.E."]); return; }
@@ -510,6 +599,19 @@
 
   $("note").value = S.note;
   $("note").addEventListener("input", function () { S.note = $("note").value; save(); });
+  var mx = 0, my = 0, cx = 0, cy = 0, deck = $("deck"), infoEl = document.querySelector(".info"), bgEl = $("bg");
+  document.addEventListener("mousemove", function (e) { mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1; });
+  document.documentElement.addEventListener("mouseleave", function () { mx = 0; my = 0; });
+  function frame(t) {
+    cx += (mx - cx) * S.smooth; cy += (my - cy) * S.smooth;
+    var k = S.invert ? -1 : 1, f = Math.sin(t / 1400) * S.float;
+    deck.style.transform = "translateY(" + f.toFixed(2) + "px)" + (S.threeD ? " rotateX(" + (-cy * S.tilt * k).toFixed(2) + "deg) rotateY(" + (cx * S.tilt * k).toFixed(2) + "deg)" : "");
+    deck.style.setProperty("--gx", (50 + cx * 45) + "%"); deck.style.setProperty("--gy", (50 + cy * 45) + "%");
+    bgEl.style.translate = (-cx * S.bgShift).toFixed(1) + "px " + (-cy * S.bgShift).toFixed(1) + "px";
+    infoEl.style.translate = (cx * S.textShift).toFixed(1) + "px " + (cy * S.textShift).toFixed(1) + "px";
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
   setInterval(tick, 1000);
   setInterval(weather, 900000);
   apply();
