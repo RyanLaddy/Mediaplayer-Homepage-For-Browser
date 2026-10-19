@@ -1,204 +1,189 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#121212">
 <title>Home</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #121212;
-    --panel: #1a1a1a;
-    --ink: #ededed;
-    --dim: #8c8c8c;
-    --line: #2e2e2e;
-    --s: calc(min(44vmin, 340px) * var(--k, 1));
-    --peek: .5; --bgc: #161616;
-    --spin: 3.2s;
-    --blur: 70px;
-    --font: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; scrollbar-width: none; }
-  *::-webkit-scrollbar { display: none; }
-  html, body { height: 100%; background: var(--bg); }
-  body { color: var(--ink); font-family: var(--font); overflow: hidden; }
+:root {
+  color-scheme: dark;
+  --bg:#121212;
+  --panel:#1a1a1a;
+  --ink:#ededed;
+  --dim:#8c8c8c;
+  --line:#2e2e2e;
+  --s:min(44vmin,340px);
+  --peek:.5;
+  --bgc:#161616;
+  --spin:3.2s;
+  --blur:30px;
+  --font:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-family:var(--font);
+}
+*{box-sizing:border-box;margin:0;scrollbar-width:none}
+*::-webkit-scrollbar{display:none}
+html,body{width:100%;height:100%;background:var(--bg)}
+body{color:var(--ink);overflow:hidden}
+button,input,select,textarea{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #aaa;outline-offset:2px}
+#page{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;isolation:isolate}
+.bg{position:absolute;inset:-5%;z-index:-2;background:var(--bg) center/cover no-repeat;filter:blur(var(--blur)) saturate(1.15);pointer-events:none}
+.veil{position:absolute;inset:0;z-index:-1;background:#000;opacity:.45;pointer-events:none}
+body.no-blur .bg{display:none}
+body.solid .bg{background-image:none!important;background-color:var(--bgc);filter:none}
+body.solid .veil{display:none}
 
-  #page { position: fixed; inset: 0; overflow-x: hidden; overflow-y: auto; }
-  .bg {
-    position: absolute; inset: -12%;
-    background: var(--bg) center / cover;
-    filter: blur(var(--blur)) saturate(1.2);
-  }
-  .veil { position: absolute; inset: 0; background: #000; opacity: .45; }
-  body.no-blur .bg { display: none; }
+main{
+ position:relative;min-height:100%;display:flex;align-items:center;justify-content:center;
+ gap:clamp(40px,7vw,110px);padding:110px 6vw 40px
+}
+.deck{position:relative;width:calc(var(--s)*(1 + var(--peek)));height:var(--s);flex:none}
+.sleeve{position:absolute;inset:0 auto auto 0;z-index:2;width:var(--s);height:var(--s);border-radius:4px;background:#262626 center/cover no-repeat;box-shadow:0 18px 45px #0005}
+.disc{position:absolute;top:0;left:calc(var(--s)*var(--peek));width:var(--s);height:var(--s);z-index:1}
+.record{
+ position:absolute;inset:0;border-radius:50%;
+ background:
+ radial-gradient(circle,transparent 0 38%,#0008 38.4%,transparent 39.5%),
+ repeating-radial-gradient(circle,#0b0b0b 0 2px,#151515 2px 3.5px);
+ animation:spin var(--spin) linear infinite;
+ transform:translateZ(0);backface-visibility:hidden
+}
+body.no-spin .record,body.only-play.idle .record{animation-play-state:paused}
+body.rev .record{animation-direction:reverse}
+@keyframes spin{to{transform:translateZ(0) rotate(360deg)}}
+.sheen{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:conic-gradient(from 20deg,transparent 0 8%,#ffffff17 14%,transparent 22%,transparent 55%,#ffffff12 64%,transparent 72%)}
+.label{position:absolute;top:50%;left:50%;width:36%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:#3a3a3a center/cover no-repeat}
+.label:after{content:"";position:absolute;top:50%;left:50%;width:7%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:var(--bg)}
+body.no-vinyl .disc{display:none}
+body.no-vinyl .deck,body.no-cover .deck{width:var(--s)}
+body.no-cover .sleeve{display:none}
+body.no-cover .disc{left:0}
 
-  main {
-    position: relative; min-height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    gap: clamp(40px, 7vw, 110px);
-    padding: 110px 6vw 40px;
-  }
+.info{max-width:460px;min-width:0}
+.status{font-size:.9rem;color:var(--dim);margin-bottom:14px}
+h1{font-weight:650;font-size:clamp(2.1rem,4.6vw,3.6rem);line-height:1.05;letter-spacing:-.035em;overflow-wrap:anywhere}
+.artist{font-size:1.25rem;margin-top:14px;overflow-wrap:anywhere}
+.album{color:var(--dim);margin-top:4px;overflow-wrap:anywhere}
+body.no-text .info{display:none}
+body.no-status .status{display:none}
 
-  /* sleeve + vinyl */
-  .deck { position: relative; width: calc(var(--s) * (1 + var(--peek))); height: var(--s); flex: none; }
-  .sleeve {
-    position: absolute; inset: 0 auto auto 0; z-index: 2;
-    width: var(--s); height: var(--s); border-radius: 4px;
-    background: #262626 center / cover;
-    box-shadow: 0 24px 60px rgba(0,0,0,.5);
-  }
-  .disc { position: absolute; top: 0; left: calc(var(--s) * var(--peek)); width: var(--s); height: var(--s); z-index: 1; }
-  .record {
-    position: absolute; inset: 0; border-radius: 50%;
-    background:
-      radial-gradient(circle, transparent 0 38%, rgba(0,0,0,.55) 38.4%, transparent 39.5%),
-      repeating-radial-gradient(circle, #0b0b0b 0 2px, #151515 2px 3.5px);
-    animation: spin var(--spin) linear infinite;
-  }
-  body.no-spin .record, body.only-play.idle .record { animation-play-state: paused; }
-  body.rev .record { animation-direction: reverse; }
-  body.solid .bg { background-image: none !important; background-color: var(--bgc); filter: none; }
-  body.solid .veil { display: none; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .sheen {
-    position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-    background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.09) 14%, transparent 22%, transparent 55%, rgba(255,255,255,.07) 64%, transparent 72%);
-  }
-  .label {
-    position: absolute; top: 50%; left: 50%; width: 36%; aspect-ratio: 1; translate: -50% -50%;
-    border-radius: 50%; background: #3a3a3a center / cover;
-  }
-  .label::after {
-    content: ""; position: absolute; top: 50%; left: 50%; width: 7%; aspect-ratio: 1; translate: -50% -50%;
-    border-radius: 50%; background: var(--bg);
-  }
-  body.no-vinyl .disc { display: none; }
-  body.no-vinyl .deck, body.no-cover .deck { width: var(--s); }
-  body.no-cover .sleeve { display: none; }
-  body.no-cover .disc { left: 0; }
+.search{
+ position:absolute;top:28px;left:50%;translate:-50% 0;z-index:5;
+ width:min(560px,90vw);height:48px;padding:0 16px;display:flex;align-items:center;gap:12px;
+ background:#121212b3;border:1px solid #3a3a3a;border-radius:10px
+}
+.search:focus-within{border-color:#777}
+.search svg{flex:none;width:17px;height:17px;stroke:var(--dim);fill:none;stroke-width:2;stroke-linecap:round}
+.search input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:var(--ink)}
+.search input::placeholder{color:var(--dim)}
+body.no-search .search{display:none}
+body.no-search main{padding-top:40px}
 
-  /* text */
-  .info { max-width: 460px; min-width: 0; }
-  .status { font-size: .9rem; color: var(--dim); margin-bottom: 14px; }
-  h1 { font-weight: 600; font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.05; letter-spacing: -.025em; text-wrap: balance; }
-  .artist { font-size: 1.25rem; margin-top: 14px; }
-  .album { color: var(--dim); margin-top: 4px; }
-  body.no-text .info { display: none; }
-  body.no-status .status { display: none; }
+.gear{
+ position:fixed;right:18px;bottom:18px;z-index:20;width:42px;height:42px;
+ border-radius:10px;cursor:pointer;background:var(--panel);border:1px solid var(--line);
+ color:var(--dim);display:grid;place-items:center
+}
+.gear:hover{color:var(--ink)}
+.gear svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+#panel{
+ position:fixed;top:0;right:0;bottom:0;z-index:30;width:min(340px,100vw);
+ background:var(--panel);border-left:1px solid var(--line);
+ transform:translate3d(100%,0,0);transition:transform .18s ease;
+ overflow-y:auto;overscroll-behavior:contain;padding:22px 22px 30px;visibility:hidden
+}
+#panel.open{transform:translate3d(0,0,0);visibility:visible}
+#panel header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#panel h2{font-size:1.1rem;font-weight:600}
+#panel h3{font-size:.85rem;font-weight:500;color:var(--dim);margin:26px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.x{background:none;border:0;color:var(--dim);font-size:22px;cursor:pointer;line-height:1}
+.x:hover{color:var(--ink)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:34px;font-size:.92rem}
+.row.col{flex-direction:column;align-items:stretch;gap:6px;padding:6px 0}
+.row .val{color:var(--dim);font-variant-numeric:tabular-nums}
+.row .top{display:flex;justify-content:space-between;gap:12px}
+#panel input[type=text],#panel input[type=password],#panel select{
+ width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--line);
+ background:#121212;color:var(--ink);font-size:.9rem
+}
+#panel input[type=range]{width:100%;accent-color:#ededed}
+.sw{appearance:none;flex:none;width:36px;height:20px;border-radius:10px;background:#3a3a3a;position:relative;cursor:pointer;transition:background .12s}
+.sw:after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#bbb;transition:transform .12s,background .12s}
+.sw:checked{background:#ededed}
+.sw:checked:after{transform:translateX(16px);background:#1a1a1a}
+.hint{font-size:.8rem;color:var(--dim);line-height:1.5;margin-top:8px}
+.hint a{color:var(--ink)}
+.reset{margin-top:22px;width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+.reset:hover{background:#222}
+.clock{position:absolute;top:24px;left:30px;z-index:4;pointer-events:none}
+.hi,.date,.wx{color:var(--dim);font-size:.9rem}
+.time{font-size:2.1rem;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.links{position:absolute;bottom:24px;left:50%;translate:-50% 0;z-index:4;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:60vw}
+.links a{width:70px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-size:.72rem;text-align:center}
+.links a span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)}
+.links a:hover span:last-child{color:var(--ink)}
+.ic{width:46px;height:46px;border-radius:12px;background:#ffffff14;border:1px solid #ffffff14;display:grid;place-items:center;font-weight:600;font-size:1.1rem;overflow:hidden}
+.ic img{width:24px;height:24px;object-fit:contain}
+.notes{position:absolute;bottom:24px;left:30px;width:220px;z-index:4}
+.notes textarea{width:100%;height:110px;resize:none;padding:10px 12px;border-radius:10px;background:#1212128c;border:1px solid #3a3a3a;color:var(--ink);font-size:.85rem;line-height:1.45}
+.notes textarea:focus{outline:0;border-color:#777}
+.recent{list-style:none;padding:0;margin-top:24px;font-size:.85rem;color:var(--dim)}
+.recent li{padding:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.no-clock .clock,body.no-links .links,body.no-notes .notes,body.no-recent .recent{display:none}
+#panel input[type=color]{width:44px;height:30px;padding:2px;border:1px solid var(--line);border-radius:6px;background:#121212;cursor:pointer}
+.mini{display:flex;gap:8px;margin-top:8px}
+.mini input{flex:1;min-width:0}
+.two{display:flex;gap:8px;margin-top:22px}
+.two .reset{margin-top:0}
 
-  /* search */
-  .search {
-    position: absolute; top: 28px; left: 50%; translate: -50% 0; z-index: 5;
-    width: min(560px, 90vw); height: 48px; padding: 0 16px;
-    display: flex; align-items: center; gap: 12px;
-    background: rgba(18,18,18,.7); border: 1px solid #3a3a3a; border-radius: 10px;
-  }
-  .search:focus-within { border-color: #777; }
-  .search svg { flex: none; width: 17px; height: 17px; stroke: var(--dim); fill: none; stroke-width: 2; stroke-linecap: round; }
-  .search input { flex: 1; min-width: 0; height: 100%; background: none; border: 0; outline: 0; color: var(--ink); font: inherit; }
-  .search input::placeholder { color: var(--dim); }
-  body.no-search .search { display: none; }
-  body.no-search main { padding-top: 40px; }
-
-  /* settings */
-  .gear {
-    position: fixed; right: 18px; bottom: 18px; z-index: 20;
-    width: 42px; height: 42px; border-radius: 10px; cursor: pointer;
-    background: var(--panel); border: 1px solid var(--line); color: var(--dim);
-    display: grid; place-items: center;
-  }
-  .gear:hover { color: var(--ink); }
-  .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
-  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #aaa; outline-offset: 2px; }
-
-  #panel {
-    position: fixed; top: 0; right: 0; bottom: 0; z-index: 30; width: min(340px, 100vw);
-    background: var(--panel); border-left: 1px solid var(--line);
-    transform: translateX(100%); transition: transform .22s ease;
-    overflow-y: auto; padding: 22px 22px 30px;
-  }
-  #panel.open { transform: none; }
-  #panel header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  #panel h2 { font-size: 1.1rem; font-weight: 600; }
-  #panel h3 { font-size: .85rem; font-weight: 500; color: var(--dim); margin: 26px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-  .x { background: none; border: 0; color: var(--dim); font-size: 22px; cursor: pointer; line-height: 1; }
-  .x:hover { color: var(--ink); }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 34px; font-size: .92rem; }
-  .row.col { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 0; }
-  .row .val { color: var(--dim); font-variant-numeric: tabular-nums; }
-  .row .top { display: flex; justify-content: space-between; }
-  #panel input[type=text], #panel input[type=password], #panel select {
-    width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line);
-    background: #121212; color: var(--ink); font: inherit; font-size: .9rem;
-  }
-  #panel input[type=range] { width: 100%; accent-color: #ededed; }
-  .sw { appearance: none; flex: none; width: 36px; height: 20px; border-radius: 10px; background: #3a3a3a; position: relative; cursor: pointer; transition: background .15s; }
-  .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #bbb; transition: translate .15s, background .15s; }
-  .sw:checked { background: #ededed; }
-  .sw:checked::after { translate: 16px 0; background: #1a1a1a; }
-  .hint { font-size: .8rem; color: var(--dim); line-height: 1.5; margin-top: 8px; }
-  .hint a { color: var(--ink); }
-  .reset { margin-top: 22px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; cursor: pointer; }
-  .reset:hover { background: #222; }
-
-  .clock { position: absolute; top: 24px; left: 30px; z-index: 4; }
-  .hi, .date, .wx { color: var(--dim); font-size: .9rem; }
-  .time { font-size: 2.1rem; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
-  .links { position: absolute; bottom: 24px; left: 50%; translate: -50% 0; z-index: 4; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 60vw; }
-  .links a { width: 70px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--ink); text-decoration: none; font-size: .72rem; text-align: center; }
-  .links a span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dim); }
-  .links a:hover span:last-child { color: var(--ink); }
-  .ic { width: 46px; height: 46px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); display: grid; place-items: center; font-weight: 600; font-size: 1.1rem; }
-  .ic img { width: 24px; height: 24px; }
-  .notes { position: absolute; bottom: 24px; left: 30px; width: 220px; z-index: 4; }
-  .notes textarea { width: 100%; height: 110px; resize: none; padding: 10px 12px; border-radius: 10px; background: rgba(18,18,18,.55); border: 1px solid #3a3a3a; color: var(--ink); font: inherit; font-size: .85rem; line-height: 1.45; }
-  .notes textarea:focus { outline: 0; border-color: #777; }
-  .recent { list-style: none; padding: 0; margin-top: 24px; font-size: .85rem; color: var(--dim); }
-  .recent li { padding: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  body.no-clock .clock, body.no-links .links, body.no-notes .notes, body.no-recent .recent { display: none; }
-  #panel input[type=color] { width: 44px; height: 30px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: #121212; cursor: pointer; }
-  .mini { display: flex; gap: 8px; margin-top: 8px; }
-  .mini input { flex: 1; min-width: 0; }
-  .two { display: flex; gap: 10px; margin-top: 22px; }
-  .two .reset { margin-top: 0; }
-
-  @media (max-width: 760px) {
-    main { --s: min(56vw, 290px); flex-direction: column; text-align: center; gap: 36px; padding: 170px 24px 130px; }
-    .search { top: 84px; } .notes, .recent { display: none; } .clock { left: 18px; top: 18px; } .time { font-size: 1.6rem; } .links { max-width: 92vw; }
-  }
+@media(max-width:760px){
+ main{--s:min(56vw,290px);flex-direction:column;text-align:center;gap:36px;padding:170px 24px 130px}
+ .search{top:84px}
+ .notes,.recent{display:none}
+ .clock{left:18px;top:18px}
+ .time{font-size:1.6rem}
+ .links{max-width:92vw;bottom:16px}
+ .info{max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{scroll-behavior:auto!important;transition:none!important}
+ .record{animation:none}
+}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <filter id="gamma" color-interpolation-filters="sRGB">
-    <feComponentTransfer>
-      <feFuncR type="gamma" exponent="1"/><feFuncG type="gamma" exponent="1"/><feFuncB type="gamma" exponent="1"/>
-    </feComponentTransfer>
-  </filter>
-</svg>
-
 <div id="page">
   <div class="bg" id="bg"></div>
   <div class="veil" id="veil"></div>
 
   <form class="search" id="search" role="search">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <input id="q" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="q" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Search" placeholder="Search">
   </form>
 
-  <div class="clock"><div class="hi" id="hi"></div><div class="time" id="time"></div><div class="date" id="date"></div><div class="wx" id="wx"></div></div>
+  <div class="clock">
+    <div class="hi" id="hi"></div>
+    <div class="time" id="time"></div>
+    <div class="date" id="date"></div>
+    <div class="wx" id="wx"></div>
+  </div>
+
   <nav class="links" id="links"></nav>
   <div class="notes"><textarea id="note" placeholder="Notes" spellcheck="false" aria-label="Notes"></textarea></div>
 
   <main>
     <div class="deck">
-      <div class="disc"><div class="record"><div class="label" id="label"></div></div><div class="sheen"></div></div>
+      <div class="disc">
+        <div class="record"><div class="label" id="label"></div></div>
+        <div class="sheen"></div>
+      </div>
       <div class="sleeve" id="sleeve"></div>
     </div>
     <section class="info">
-      <div class="status" id="status">Connecting…</div>
+      <div class="status" id="status">Loading…</div>
       <h1 id="title">Nothing playing</h1>
       <p class="artist" id="artist"></p>
       <p class="album" id="album"></p>
@@ -210,312 +195,680 @@
 <button class="gear" id="gear" aria-label="Settings" title="Settings">
   <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
 </button>
-<aside id="panel" aria-label="Settings"></aside>
+<aside id="panel" aria-label="Settings" aria-hidden="true"></aside>
 
 <script>
-(function () {
-  var $ = function (id) { return document.getElementById(id); };
-  var STORE = "webhome-settings", OLD = "webhome-config";
-  var PLACEHOLDER = "2a96cbd8b46e442fc41c2b86b821562f";
+(function(){
+"use strict";
 
-  var DEF = {
-    user: "", key: "", demo: false, engine: "google",
-    showSearch: true, showVinyl: true, showCover: true, showText: true, showStatus: true, showBlur: true, spin: true,
-    spinSecs: 3.2, blur: 70, dim: 45,
-    brightness: 100, contrast: 100, saturate: 100, hue: 0, gamma: 1, gray: 0,
-    showClock: true, clock24: true, showSeconds: false, showDate: true, name: "",
-    showWeather: true, city: "", units: "c", font: "sans",
-    showLinks: true, links: [
-      { n: "YouTube", u: "https://youtube.com" }, { n: "Gmail", u: "https://mail.google.com" },
-      { n: "GitHub", u: "https://github.com" }, { n: "Reddit", u: "https://reddit.com" },
-      { n: "Spotify", u: "https://open.spotify.com" }
-    ],
-    showNotes: true, note: "", showRecent: true,
-    bgMode: "art", bgColor: "#161616", vinylSize: 100, peek: 50,
-    reverse: false, onlyPlaying: false, pollSecs: 10
-  };
-  var FONTS = {
-    sans: '"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
-    serif: 'Georgia, "Times New Roman", serif',
-    mono: 'ui-monospace, "Cascadia Mono", Consolas, monospace'
-  };
-  var PRESETS = {
-    Default: { brightness: 100, contrast: 100, saturate: 100, hue: 0, gamma: 1, gray: 0 },
-    Warm:    { brightness: 104, contrast: 105, saturate: 115, hue: -12, gamma: 1, gray: 0 },
-    Cool:    { brightness: 100, contrast: 105, saturate: 105, hue: 14, gamma: 1, gray: 0 },
-    Vivid:   { brightness: 105, contrast: 115, saturate: 155, hue: 0, gamma: 1, gray: 0 },
-    Faded:   { brightness: 108, contrast: 85, saturate: 75, hue: 0, gamma: .9, gray: 0 },
-    Noir:    { brightness: 95, contrast: 120, saturate: 100, hue: 0, gamma: 1.1, gray: 100 }
-  };
-  var ENGINES = {
-    google: ["Google", "https://www.google.com/search?q="],
-    duck: ["DuckDuckGo", "https://duckduckgo.com/?q="],
-    bing: ["Bing", "https://www.bing.com/search?q="],
-    brave: ["Brave", "https://search.brave.com/search?q="],
-    youtube: ["YouTube", "https://www.youtube.com/results?search_query="],
-    wiki: ["Wikipedia", "https://en.wikipedia.org/w/index.php?search="]
-  };
+const $ = id => document.getElementById(id);
+const STORE = "webhome-settings";
+const OLD = "webhome-config";
+const PLACEHOLDER = "2a96cbd8b46e442fc41c2b86b821562f";
 
-  function read(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
-  var S = Object.assign({}, DEF, read(OLD) || {}, read(STORE) || {});
-  var firstRun = !read(STORE) && !(read(OLD) && read(OLD).user);
-  function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
+const DEF = {
+ user:"",key:"",demo:false,engine:"google",
+ showSearch:true,showVinyl:true,showCover:true,showText:true,showStatus:true,showBlur:true,spin:true,
+ spinSecs:3.2,blur:30,dim:45,
+ brightness:100,contrast:100,saturate:100,hue:0,gamma:1,gray:0,
+ showClock:true,clock24:true,showSeconds:false,showDate:true,name:"",
+ showWeather:true,city:"",units:"c",font:"sans",
+ showLinks:true,links:[
+  {n:"YouTube",u:"https://youtube.com"},
+  {n:"Gmail",u:"https://mail.google.com"},
+  {n:"GitHub",u:"https://github.com"},
+  {n:"Reddit",u:"https://reddit.com"},
+  {n:"Spotify",u:"https://open.spotify.com"}
+ ],
+ showNotes:true,note:"",showRecent:true,
+ bgMode:"art",bgColor:"#161616",vinylSize:100,peek:50,
+ reverse:false,onlyPlaying:false,pollSecs:10
+};
 
-  /* ---------- apply settings to the page ---------- */
-  function apply() {
-    var b = document.body.classList, r = document.documentElement.style;
-    b.toggle("no-search", !S.showSearch);
-    b.toggle("no-vinyl", !S.showVinyl);
-    b.toggle("no-cover", !S.showCover);
-    b.toggle("no-text", !S.showText);
-    b.toggle("no-status", !S.showStatus);
-    b.toggle("no-blur", !S.showBlur);
-    b.toggle("no-spin", !S.spin);
-    b.toggle("no-clock", !S.showClock); b.toggle("no-links", !S.showLinks);
-    b.toggle("no-notes", !S.showNotes); b.toggle("no-recent", !S.showRecent);
-    b.toggle("solid", S.bgMode === "color"); b.toggle("rev", S.reverse); b.toggle("only-play", S.onlyPlaying);
-    r.setProperty("--k", S.vinylSize / 100); r.setProperty("--peek", S.peek / 100);
-    r.setProperty("--bgc", S.bgColor); r.setProperty("--font", FONTS[S.font] || FONTS.sans);
-    tick(); renderLinks();
-    r.setProperty("--spin", S.spinSecs + "s");
-    r.setProperty("--blur", S.blur + "px");
-    $("veil").style.opacity = S.dim / 100;
-    document.querySelectorAll("#gamma feFuncR, #gamma feFuncG, #gamma feFuncB")
-      .forEach(function (f) { f.setAttribute("exponent", S.gamma); });
-    var neutral = S.brightness == 100 && S.contrast == 100 && S.saturate == 100 && S.hue == 0 && S.gamma == 1 && S.gray == 0;
-    $("page").style.filter = neutral ? "none" :
-      "url(#gamma) brightness(" + S.brightness + "%) contrast(" + S.contrast + "%) saturate(" + S.saturate +
-      "%) hue-rotate(" + S.hue + "deg) grayscale(" + S.gray + "%)";
-    $("q").placeholder = "Search " + ENGINES[S.engine][0] + " or type a URL";
-  }
+const FONTS={
+ sans:'system-ui,-apple-system,"Segoe UI",sans-serif',
+ serif:'Georgia,"Times New Roman",serif',
+ mono:'ui-monospace,"Cascadia Mono",Consolas,monospace'
+};
 
-  /* ---------- settings panel ---------- */
-  var panel = $("panel");
-  var sliders = {
-    spinSecs:   ["Seconds per turn", 1, 12, 0.1, "s"],
-    blur:       ["Background blur", 0, 120, 1, "px"],
-    dim:        ["Background dimming", 0, 90, 1, "%"],
-    brightness: ["Brightness", 40, 160, 1, "%"],
-    contrast:   ["Contrast", 40, 160, 1, "%"],
-    gamma:      ["Gamma", 0.5, 2, 0.05, ""],
-    saturate:   ["Saturation", 0, 200, 1, "%"],
-    hue:        ["Hue", -180, 180, 1, "°"],
-    gray:       ["Grayscale", 0, 100, 1, "%"],
-    vinylSize:  ["Vinyl size", 60, 140, 1, "%"],
-    peek:       ["Vinyl peek", 15, 90, 1, "%"],
-    pollSecs:   ["Check music every", 1, 60, 1, "s"]
-  };
-  var toggles = {
-    showSearch: "Search bar", showVinyl: "Vinyl", showCover: "Album cover",
-    showText: "Track details", showStatus: "Status line", showRecent: "Recently played",
-    showClock: "Clock", clock24: "24-hour time", showSeconds: "Seconds", showDate: "Date", showWeather: "Weather",
-    showLinks: "Quick links", showNotes: "Notes", showBlur: "Blurred background",
-    spin: "Spin vinyl", reverse: "Reverse spin", onlyPlaying: "Spin only while playing"
-  };
+const PRESETS={
+ Default:{brightness:100,contrast:100,saturate:100,hue:0,gamma:1,gray:0},
+ Warm:{brightness:104,contrast:105,saturate:115,hue:-12,gamma:1,gray:0},
+ Cool:{brightness:100,contrast:105,saturate:105,hue:14,gamma:1,gray:0},
+ Vivid:{brightness:105,contrast:115,saturate:155,hue:0,gamma:1,gray:0},
+ Faded:{brightness:108,contrast:85,saturate:75,hue:0,gamma:.9,gray:0},
+ Noir:{brightness:95,contrast:120,saturate:100,hue:0,gamma:1.1,gray:100}
+};
 
-  function toggleRow(k) {
-    return '<label class="row"><span>' + toggles[k] + '</span><input class="sw" type="checkbox" data-t="' + k + '"' + (S[k] ? " checked" : "") + '></label>';
-  }
-  function sliderRow(k) {
-    var d = sliders[k];
-    return '<div class="row col"><div class="top"><span>' + d[0] + '</span><span class="val" id="v-' + k + '">' + S[k] + d[4] + '</span></div>' +
-      '<input type="range" data-s="' + k + '" min="' + d[1] + '" max="' + d[2] + '" step="' + d[3] + '" value="' + S[k] + '"></div>';
-  }
-  function build() {
-    var engineOpts = Object.keys(ENGINES).map(function (k) {
-      return '<option value="' + k + '"' + (S.engine === k ? " selected" : "") + '>' + ENGINES[k][0] + '</option>';
-    }).join("");
-    panel.innerHTML =
-      '<header><h2>Settings</h2><button class="x" id="close" aria-label="Close">×</button></header>' +
-      '<h3>Last.fm</h3>' +
-      '<div class="row col"><span>Username</span><input type="text" id="user" autocomplete="off" spellcheck="false" value="' + esc(S.user) + '"></div>' +
-      '<div class="row col"><span>API key</span><input type="password" id="key" autocomplete="off" spellcheck="false" value="' + esc(S.key) + '"></div>' +
-      '<label class="row"><span>Demo mode</span><input class="sw" type="checkbox" data-t="demo"' + (S.demo ? " checked" : "") + '></label>' +
-      '<p class="hint">Reads what you\'re playing from Last.fm. Get a <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">free API key</a> and <a href="https://www.last.fm/settings/applications" target="_blank" rel="noopener">link your music app</a>.</p>' +
-      '<h3>Search</h3>' +
-      '<div class="row col"><span>Search engine</span><select id="engine">' + engineOpts + '</select></div>' +
-      '<h3>Personal</h3>' + txt('name', 'Your name') + txt('city', 'Weather city') +
-      sel('units', 'Temperature', { c: 'Celsius', f: 'Fahrenheit' }) + sel('font', 'Font', { sans: 'Sans', serif: 'Serif', mono: 'Mono' }) +
-      '<h3>Background</h3>' + sel('bgMode', 'Style', { art: 'Album art', color: 'Solid colour' }) +
-      '<div class="row"><span>Colour</span><input type="color" data-k="bgColor" value="' + esc(S.bgColor) + '"></div>' +
-      '<h3>Quick links</h3>' + S.links.map(function (l, i) { return '<div class="row"><span>' + esc(l.n) + '</span><button class="x" data-del="' + i + '" aria-label="Remove">×</button></div>'; }).join("") +
-      '<div class="mini"><input type="text" id="ln" placeholder="Name"><input type="text" id="lu" placeholder="site.com"><button class="reset" id="ladd" style="margin:0;width:auto">Add</button></div>' +
-      '<h3>Show</h3>' + Object.keys(toggles).map(toggleRow).join("") +
-      '<h3>Vinyl and background</h3>' + ["spinSecs", "vinylSize", "peek", "blur", "dim", "pollSecs"].map(sliderRow).join("") +
-      '<h3>Colour</h3>' + ["brightness", "contrast", "gamma", "saturate", "hue", "gray"].map(sliderRow).join("") +
-      sel('preset', 'Preset', Object.assign({ '': 'Choose…' }, Object.keys(PRESETS).reduce(function (o, k) { o[k] = k; return o; }, {}))).replace('data-k="preset"', 'id="preset"') +
-      '<div class="two"><button class="reset" id="reset">Reset</button><button class="reset" id="export">Export</button><button class="reset" id="import">Import</button></div>' +
-      '<p class="hint">Export copies your settings, including your API key. Keep it private.</p>';
-  }
-  function txt(k, label) { return '<div class="row col"><span>' + label + '</span><input type="text" data-k="' + k + '" autocomplete="off" value="' + esc(S[k]) + '"></div>'; }
-  function sel(k, label, opts) {
-    return '<div class="row col"><span>' + label + '</span><select data-k="' + k + '">' + Object.keys(opts).map(function (v) {
-      return '<option value="' + v + '"' + (S[k] === v ? " selected" : "") + '>' + opts[v] + '</option>'; }).join("") + '</select></div>';
-  }
-  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+const ENGINES={
+ google:["Google","https://www.google.com/search?q="],
+ duck:["DuckDuckGo","https://duckduckgo.com/?q="],
+ bing:["Bing","https://www.bing.com/search?q="],
+ brave:["Brave","https://search.brave.com/search?q="],
+ youtube:["YouTube","https://www.youtube.com/results?search_query="],
+ wiki:["Wikipedia","https://en.wikipedia.org/w/index.php?search="]
+};
 
-  panel.addEventListener("input", function (e) {
-    var el = e.target;
-    if (el.dataset.s) {
-      S[el.dataset.s] = parseFloat(el.value);
-      $("v-" + el.dataset.s).textContent = el.value + sliders[el.dataset.s][4];
-    } else if (el.dataset.t) {
-      S[el.dataset.t] = el.checked;
-      if (el.dataset.t === "demo") start();
-      if (el.dataset.t === "showWeather") weather();
-    } else if (el.id === "engine") { S.engine = el.value; }
-    else return;
-    save(); apply();
-  });
-  panel.addEventListener("change", function (e) {
-    var el = e.target;
-    if (el.id === "user" || el.id === "key") { S.user = $("user").value.trim(); S.key = $("key").value.trim(); save(); start(); }
-    else if (el.id === "preset") { if (PRESETS[el.value]) { Object.assign(S, PRESETS[el.value]); save(); apply(); build(); } }
-    else if (el.dataset.k) {
-      S[el.dataset.k] = el.value.trim ? el.value.trim() : el.value; save(); apply();
-      if (el.dataset.k === "city" || el.dataset.k === "units") weather();
-    } else if (el.dataset.s === "pollSecs") start();
-  });
-  panel.addEventListener("click", function (e) {
-    var d = e.target.dataset;
-    if (e.target.id === "close") closePanel();
-    if (d.del) { S.links.splice(+d.del, 1); save(); build(); renderLinks(); }
-    if (e.target.id === "ladd") {
-      var n = $("ln").value.trim(), u = $("lu").value.trim();
-      if (n && u) { if (!/^https?:\/\//i.test(u)) u = "https://" + u; S.links.push({ n: n, u: u }); save(); build(); renderLinks(); }
-    }
-    if (e.target.id === "export") prompt("Copy your settings:", JSON.stringify(S));
-    if (e.target.id === "import") {
-      var j = prompt("Paste settings:");
-      if (j) { try { Object.assign(S, JSON.parse(j)); save(); apply(); build(); start(); weather(); } catch (x) { alert("That isn't valid settings text."); } }
-    }
-    if (e.target.id === "reset") {
-      ["spinSecs","blur","dim","brightness","contrast","saturate","hue","gamma","gray",
-       "showSearch","showVinyl","showCover","showText","showStatus","showBlur","spin"]
-        .forEach(function (k) { S[k] = DEF[k]; });
-      save(); apply(); build();
-    }
-  });
-  function openPanel() { build(); panel.classList.add("open"); }
-  function closePanel() { panel.classList.remove("open"); }
-  $("gear").onclick = function () { panel.classList.contains("open") ? closePanel() : openPanel(); };
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closePanel();
-    var t = e.target.tagName;
-    if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
-    if (e.key === "/") { e.preventDefault(); $("q").focus(); }
-    else if (e.key === ",") { panel.classList.contains("open") ? closePanel() : openPanel(); }
-  });
+const sliders={
+ spinSecs:["Seconds per turn",1,12,.1,"s"],
+ blur:["Background blur",0,120,1,"px"],
+ dim:["Background dimming",0,90,1,"%"],
+ brightness:["Brightness",40,160,1,"%"],
+ contrast:["Contrast",40,160,1,"%"],
+ gamma:["Gamma",.5,2,.05,""],
+ saturate:["Saturation",0,200,1,"%"],
+ hue:["Hue",-180,180,1,"°"],
+ gray:["Grayscale",0,100,1,"%"],
+ vinylSize:["Vinyl size",60,140,1,"%"],
+ peek:["Vinyl peek",15,90,1,"%"],
+ pollSecs:["Check music every",5,60,1,"s"]
+};
 
-  /* ---------- now playing ---------- */
-  var lastId = "", timer = null;
-  function setArt(url) {
-    var v = url ? 'url("' + url + '")' : "";
-    $("label").style.backgroundImage = v;
-    $("sleeve").style.backgroundImage = v;
-    $("bg").style.backgroundImage = v;
-  }
-  function render(t, playing) {
-    document.body.classList.toggle("idle", !playing);
-    $("status").textContent = playing ? "Now playing" : (t ? "Last played" : "Not connected");
-    if (!t) {
-      $("title").textContent = "Nothing playing";
-      $("artist").textContent = ""; $("album").textContent = "";
-      document.title = "Home"; setArt(""); lastId = ""; setRecent([]);
-      return;
-    }
-    $("title").textContent = t.name;
-    $("artist").textContent = t.artist;
-    $("album").textContent = t.album;
-    document.title = (playing ? "♪ " : "") + t.name + " – " + t.artist;
-    var id = t.name + "|" + t.artist + "|" + t.art;
-    if (id !== lastId) { lastId = id; setArt(t.art); }
-  }
-  async function poll() {
-    if (S.demo) { render({ name: "Midnight City", artist: "M83", album: "Hurry Up, We're Dreaming", art: "" }, true); setRecent(["Daft Punk – Digital Love", "Röyksopp – Remind Me", "Justice – D.A.N.C.E."]); return; }
-    if (!S.user || !S.key) { render(null, false); return; }
-    try {
-      var u = "https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=7&format=json" +
-        "&user=" + encodeURIComponent(S.user) + "&api_key=" + encodeURIComponent(S.key);
-      var data = await (await fetch(u)).json();
-      if (data.error) { $("status").textContent = data.message || "Last.fm error"; return; }
-      var all = data.recenttracks.track;
-      all = Array.isArray(all) ? all : (all ? [all] : []);
-      var tr = all[0];
-      if (!tr) { render(null, false); $("status").textContent = "No listening history yet"; return; }
-      var imgs = tr.image || [], art = "";
-      for (var i = imgs.length - 1; i >= 0; i--) {
-        var src = imgs[i]["#text"];
-        if (src && src.indexOf(PLACEHOLDER) === -1) { art = src; break; }
-      }
-      render({ name: tr.name, artist: tr.artist["#text"] || tr.artist.name, album: tr.album["#text"], art: art },
-             !!(tr["@attr"] && tr["@attr"].nowplaying === "true"));
-      setRecent(all.slice(1, 6).map(function (x) { return (x.artist["#text"] || x.artist.name) + " – " + x.name; }));
-    } catch (e) {
-      $("status").textContent = "Can't reach Last.fm. Check your connection.";
-    }
-  }
-  function start() { clearInterval(timer); poll(); timer = setInterval(poll, S.pollSecs * 1000); }
-  function setRecent(list) {
-    var ol = $("recent"); ol.innerHTML = "";
-    list.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ol.appendChild(li); });
-  }
+const toggles={
+ showSearch:"Search bar",showVinyl:"Vinyl",showCover:"Album cover",
+ showText:"Track details",showStatus:"Status line",showRecent:"Recently played",
+ showClock:"Clock",clock24:"24-hour time",showSeconds:"Seconds",showDate:"Date",showWeather:"Weather",
+ showLinks:"Quick links",showNotes:"Notes",showBlur:"Blurred background",
+ spin:"Spin vinyl",reverse:"Reverse spin",onlyPlaying:"Spin only while playing"
+};
 
-  /* ---------- clock, weather, links, notes ---------- */
-  function tick() {
-    var d = new Date(), o = { hour: "2-digit", minute: "2-digit", hour12: !S.clock24 };
-    if (S.showSeconds) o.second = "2-digit";
-    $("time").textContent = d.toLocaleTimeString([], o);
-    $("date").textContent = S.showDate ? d.toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" }) : "";
-    var h = d.getHours();
-    $("hi").textContent = S.name ? (h < 5 ? "Good night" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", " + S.name : "";
-  }
-  var WX = { 0: "Clear", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast", 45: "Fog", 48: "Fog", 51: "Drizzle", 53: "Drizzle", 55: "Drizzle",
-    61: "Rain", 63: "Rain", 65: "Heavy rain", 71: "Snow", 73: "Snow", 75: "Heavy snow", 80: "Showers", 81: "Showers", 82: "Heavy showers", 95: "Thunderstorm", 96: "Thunderstorm", 99: "Thunderstorm" };
-  async function weather() {
-    var el = $("wx");
-    if (!S.showWeather || !S.city) { el.textContent = ""; return; }
-    try {
-      var g = await (await fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&name=" + encodeURIComponent(S.city))).json();
-      var p = g.results && g.results[0];
-      if (!p) { el.textContent = "City not found"; return; }
-      var w = await (await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + p.latitude + "&longitude=" + p.longitude +
-        "&current=temperature_2m,weather_code&temperature_unit=" + (S.units === "f" ? "fahrenheit" : "celsius"))).json();
-      el.textContent = Math.round(w.current.temperature_2m) + "°" + S.units.toUpperCase() + " " + (WX[w.current.weather_code] || "") + ", " + p.name;
-    } catch (e) { el.textContent = "Weather unavailable"; }
-  }
-  function renderLinks() {
-    var nav = $("links"); nav.innerHTML = "";
-    S.links.forEach(function (l) {
-      var a = document.createElement("a"), ic = document.createElement("span"), img = new Image(), host = "";
-      try { host = new URL(l.u).hostname; } catch (e) {}
-      a.href = l.u; ic.className = "ic"; img.alt = "";
-      img.src = "https://www.google.com/s2/favicons?sz=64&domain=" + host;
-      img.onerror = function () { img.remove(); ic.textContent = l.n.charAt(0).toUpperCase(); };
-      ic.appendChild(img); a.appendChild(ic);
-      var t = document.createElement("span"); t.textContent = l.n; a.appendChild(t); nav.appendChild(a);
-    });
-  }
+function read(key){
+ try{
+  const value=JSON.parse(localStorage.getItem(key));
+  return value&&typeof value==="object"&&!Array.isArray(value)?value:null;
+ }catch{return null;}
+}
 
-  /* ---------- search ---------- */
-  $("search").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var q = $("q").value.trim();
-    if (!q) return;
-    var isUrl = q.indexOf(" ") === -1 && /^(https?:\/\/|[\w-]+(\.[\w-]+)+(\/\S*)?$)/i.test(q);
-    window.location.href = isUrl
-      ? (/^https?:\/\//i.test(q) ? q : "https://" + q)
-      : ENGINES[S.engine][1] + encodeURIComponent(q);
-  });
+const oldSettings=read(OLD);
+const storedSettings=read(STORE);
+const S=Object.assign({},DEF,oldSettings||{},storedSettings||{});
+if(!Array.isArray(S.links)) S.links=DEF.links.map(x=>({...x}));
+S.links=S.links.filter(x=>x&&typeof x.n==="string"&&typeof x.u==="string");
+const firstRun=!storedSettings&&!(oldSettings&&oldSettings.user);
 
-  $("note").value = S.note;
-  $("note").addEventListener("input", function () { S.note = $("note").value; save(); });
-  setInterval(tick, 1000);
-  setInterval(weather, 900000);
+let saveTimer=0;
+function save(){
+ clearTimeout(saveTimer);
+ saveTimer=setTimeout(()=>{
+  try{localStorage.setItem(STORE,JSON.stringify(S));}catch{}
+ },100);
+}
+function saveNow(){
+ clearTimeout(saveTimer);
+ try{localStorage.setItem(STORE,JSON.stringify(S));}catch{}
+}
+function esc(value){
+ return String(value).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+/* Apply settings without rebuilding unrelated elements. */
+const body=document.body;
+const root=document.documentElement.style;
+const gammaFunctions=[...document.querySelectorAll("#gamma feFuncR,#gamma feFuncG,#gamma feFuncB")];
+
+function apply(){
+ const classes={
+  "no-search":!S.showSearch,
+  "no-vinyl":!S.showVinyl,
+  "no-cover":!S.showCover,
+  "no-text":!S.showText,
+  "no-status":!S.showStatus,
+  "no-blur":!S.showBlur,
+  "no-spin":!S.spin,
+  "no-clock":!S.showClock,
+  "no-links":!S.showLinks,
+  "no-notes":!S.showNotes,
+  "no-recent":!S.showRecent,
+  solid:S.bgMode==="color",
+  rev:!!S.reverse,
+  "only-play":!!S.onlyPlaying
+ };
+ for(const [name,on] of Object.entries(classes)) body.classList.toggle(name,!!on);
+
+ root.setProperty("--s",`min(44vmin,340px)`);
+ root.setProperty("--k",Number(S.vinylSize)/100);
+ root.setProperty("--peek",Number(S.peek)/100);
+ root.setProperty("--bgc",S.bgColor);
+ root.setProperty("--font",FONTS[S.font]||FONTS.sans);
+ root.setProperty("--spin",`${S.spinSecs}s`);
+ root.setProperty("--blur",`${S.blur}px`);
+ $("veil").style.opacity=Number(S.dim)/100;
+
+ for(const f of gammaFunctions) f.setAttribute("exponent",String(S.gamma));
+
+ const neutral=Number(S.brightness)===100&&Number(S.contrast)===100&&
+  Number(S.saturate)===100&&Number(S.hue)===0&&Number(S.gamma)===1&&Number(S.gray)===0;
+
+ $("page").style.filter=neutral?"none":
+  `url(#gamma) brightness(${S.brightness}%) contrast(${S.contrast}%) saturate(${S.saturate}%) hue-rotate(${S.hue}deg) grayscale(${S.gray}%)`;
+
+ $("q").placeholder=`Search ${(ENGINES[S.engine]||ENGINES.google)[0]} or type a URL`;
+ tick();
+ updateClockTimer();
+}
+
+/* Settings panel */
+const panel=$("panel");
+
+function toggleRow(k){
+ return `<label class="row"><span>${esc(toggles[k])}</span><input class="sw" type="checkbox" data-t="${k}"${S[k]?" checked":""}></label>`;
+}
+function sliderRow(k){
+ const d=sliders[k];
+ return `<div class="row col"><div class="top"><span>${esc(d[0])}</span><span class="val" id="v-${k}">${S[k]}${d[4]}</span></div><input type="range" data-s="${k}" min="${d[1]}" max="${d[2]}" step="${d[3]}" value="${S[k]}"></div>`;
+}
+function txt(k,label){
+ return `<div class="row col"><span>${esc(label)}</span><input type="text" data-k="${k}" autocomplete="off" value="${esc(S[k])}"></div>`;
+}
+function sel(k,label,opts){
+ return `<div class="row col"><span>${esc(label)}</span><select data-k="${k}">${Object.entries(opts).map(([v,name])=>`<option value="${esc(v)}"${S[k]===v?" selected":""}>${esc(name)}</option>`).join("")}</select></div>`;
+}
+
+function build(){
+ const engineOpts=Object.entries(ENGINES).map(([k,v])=>
+  `<option value="${k}"${S.engine===k?" selected":""}>${v[0]}</option>`
+ ).join("");
+
+ panel.innerHTML=
+ `<header><h2>Settings</h2><button class="x" id="close" aria-label="Close">×</button></header>
+ <h3>Last.fm</h3>
+ <div class="row col"><span>Username</span><input type="text" id="user" autocomplete="off" spellcheck="false" value="${esc(S.user)}"></div>
+ <div class="row col"><span>API key</span><input type="password" id="key" autocomplete="off" spellcheck="false" value="${esc(S.key)}"></div>
+ <label class="row"><span>Demo mode</span><input class="sw" type="checkbox" data-t="demo"${S.demo?" checked":""}></label>
+ <p class="hint">Reads what you're playing from Last.fm. Get a <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener noreferrer">free API key</a> and <a href="https://www.last.fm/settings/applications" target="_blank" rel="noopener noreferrer">link your music app</a>.</p>
+ <h3>Search</h3>
+ <div class="row col"><span>Search engine</span><select id="engine">${engineOpts}</select></div>
+ <h3>Personal</h3>${txt("name","Your name")}${txt("city","Weather city")}
+ ${sel("units","Temperature",{c:"Celsius",f:"Fahrenheit"})}
+ ${sel("font","Font",{sans:"Sans",serif:"Serif",mono:"Mono"})}
+ <h3>Background</h3>${sel("bgMode","Style",{art:"Album art",color:"Solid colour"})}
+ <div class="row"><span>Colour</span><input type="color" data-k="bgColor" value="${esc(S.bgColor)}"></div>
+ <h3>Quick links</h3>
+ ${S.links.map((l,i)=>`<div class="row"><span>${esc(l.n)}</span><button class="x" data-del="${i}" aria-label="Remove ${esc(l.n)}">×</button></div>`).join("")}
+ <div class="mini"><input type="text" id="ln" placeholder="Name" aria-label="New link name"><input type="text" id="lu" placeholder="site.com" aria-label="New link URL"><button class="reset" id="ladd" style="margin:0;width:auto">Add</button></div>
+ <h3>Show</h3>${Object.keys(toggles).map(toggleRow).join("")}
+ <h3>Vinyl and background</h3>${["spinSecs","vinylSize","peek","blur","dim","pollSecs"].map(sliderRow).join("")}
+ <h3>Colour</h3>${["brightness","contrast","gamma","saturate","hue","gray"].map(sliderRow).join("")}
+ ${sel("preset","Preset",Object.assign({"":"Choose…"},Object.fromEntries(Object.keys(PRESETS).map(k=>[k,k]))))}
+ <div class="two"><button class="reset" id="reset">Reset</button><button class="reset" id="export">Export</button><button class="reset" id="import">Import</button></div>
+ <p class="hint">Export copies your settings, including your API key. Keep it private.</p>`;
+}
+
+function openPanel(){
+ build();
+ panel.classList.add("open");
+ panel.setAttribute("aria-hidden","false");
+ $("gear").setAttribute("aria-expanded","true");
+}
+function closePanel(){
+ panel.classList.remove("open");
+ panel.setAttribute("aria-hidden","true");
+ $("gear").setAttribute("aria-expanded","false");
+}
+$("gear").setAttribute("aria-expanded","false");
+$("gear").onclick=()=>panel.classList.contains("open")?closePanel():openPanel();
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape") closePanel();
+ const tag=e.target.tagName;
+ if(["INPUT","TEXTAREA","SELECT"].includes(tag)||e.ctrlKey||e.altKey||e.metaKey)return;
+ if(e.key==="/"){e.preventDefault();$("q").focus();}
+ else if(e.key===","){panel.classList.contains("open")?closePanel():openPanel();}
+});
+
+panel.addEventListener("input",e=>{
+ const el=e.target;
+ if(el.dataset.s){
+  const k=el.dataset.s;
+  S[k]=Number(el.value);
+  $("v-"+k).textContent=el.value+sliders[k][4];
+  save();
   apply();
+ }else if(el.dataset.t){
+  S[el.dataset.t]=el.checked;
+  save();
+  apply();
+  if(el.dataset.t==="demo")start();
+  if(el.dataset.t==="showWeather")weather();
+ }else if(el.id==="engine"){
+  S.engine=el.value;
+  $("q").placeholder=`Search ${ENGINES[S.engine][0]} or type a URL`;
+  save();
+ }
+});
+
+panel.addEventListener("change",e=>{
+ const el=e.target;
+
+ if(el.id==="user"||el.id==="key"){
+  S.user=$("user").value.trim();
+  S.key=$("key").value.trim();
+  saveNow();
   start();
-  weather();
-  if (firstRun) openPanel();
+ }else if(el.id==="preset"){
+  if(PRESETS[el.value]){
+   Object.assign(S,PRESETS[el.value]);
+   saveNow();apply();build();
+  }
+ }else if(el.dataset.k){
+  const k=el.dataset.k;
+  S[k]=el.type==="color"?el.value:el.value.trim();
+  saveNow();apply();
+  if(k==="city"||k==="units")weather(true);
+ }else if(el.dataset.s==="pollSecs"){
+  start();
+ }
+});
+
+panel.addEventListener("click",e=>{
+ const target=e.target;
+ const d=target.dataset;
+
+ if(target.id==="close")closePanel();
+
+ if(d.del!==undefined){
+  S.links.splice(Number(d.del),1);
+  saveNow();build();renderLinks();
+ }
+
+ if(target.id==="ladd"){
+  const n=$("ln").value.trim();
+  let u=$("lu").value.trim();
+  if(n&&u){
+   if(!/^https?:\/\//i.test(u))u="https://"+u;
+   try{
+    const parsed=new URL(u);
+    if(!["http:","https:"].includes(parsed.protocol))throw new Error();
+    S.links.push({n,u:parsed.href});
+    saveNow();build();renderLinks();
+   }catch{alert("Enter a valid website URL.");}
+  }
+ }
+
+ if(target.id==="export")prompt("Copy your settings:",JSON.stringify(S));
+
+ if(target.id==="import"){
+  const value=prompt("Paste settings:");
+  if(value){
+   try{
+    const imported=JSON.parse(value);
+    if(!imported||typeof imported!=="object"||Array.isArray(imported))throw new Error();
+    Object.assign(S,imported);
+    if(!Array.isArray(S.links))S.links=[];
+    S.links=S.links.filter(x=>x&&typeof x.n==="string"&&typeof x.u==="string");
+    saveNow();apply();build();renderLinks();start();weather(true);
+   }catch{alert("That isn't valid settings text.");}
+  }
+ }
+
+ if(target.id==="reset"){
+  Object.assign(S,DEF,{links:DEF.links.map(x=>({...x}))});
+  $("note").value=S.note;
+  saveNow();apply();build();renderLinks();start();weather(true);
+ }
+});
+
+/* Album art and music */
+let lastId="";
+let pollTimer=0;
+let pollController=null;
+let pollVersion=0;
+let recentCache="";
+
+function setArt(url){
+ const value=url?`url("${url.replace(/["\\\n\r]/g,"")}")`:"";
+ $("label").style.backgroundImage=value;
+ $("sleeve").style.backgroundImage=value;
+ $("bg").style.backgroundImage=value;
+}
+
+function setRecent(list){
+ const key=list.join("\n");
+ if(key===recentCache)return;
+ recentCache=key;
+ const ol=$("recent");
+ const frag=document.createDocumentFragment();
+ for(const text of list){
+  const li=document.createElement("li");
+  li.textContent=text;
+  frag.appendChild(li);
+ }
+ ol.replaceChildren(frag);
+}
+
+function render(track,playing){
+ body.classList.toggle("idle",!playing);
+ $("status").textContent=playing?"Now playing":track?"Last played":"Not connected";
+
+ if(!track){
+  $("title").textContent="Nothing playing";
+  $("artist").textContent="";
+  $("album").textContent="";
+  document.title="Home";
+  if(lastId!==""){setArt("");lastId="";}
+  setRecent([]);
+  return;
+ }
+
+ $("title").textContent=track.name||"Unknown track";
+ $("artist").textContent=track.artist||"Unknown artist";
+ $("album").textContent=track.album||"";
+ document.title=(playing?"♪ ":"")+(track.name||"Unknown track")+" – "+(track.artist||"Unknown artist");
+
+ const id=[track.name,track.artist,track.art].join("|");
+ if(id!==lastId){
+  lastId=id;
+  setArt(track.art);
+ }
+}
+
+function trackArt(track){
+ const images=Array.isArray(track.image)?track.image:[];
+ for(let i=images.length-1;i>=0;i--){
+  const src=images[i]&&images[i]["#text"];
+  if(src&&!src.includes(PLACEHOLDER))return src;
+ }
+ return "";
+}
+
+async function poll(version){
+ if(version!==pollVersion)return;
+
+ if(S.demo){
+  render({name:"Midnight City",artist:"M83",album:"Hurry Up, We're Dreaming",art:""},true);
+  setRecent(["Daft Punk – Digital Love","Röyksopp – Remind Me","Justice – D.A.N.C.E."]);
+  return;
+ }
+
+ if(!S.user||!S.key){
+  render(null,false);
+  $("status").textContent="Not connected";
+  return;
+ }
+
+ const controller=new AbortController();
+ pollController=controller;
+
+ try{
+  const url="https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=7&format=json"+
+   "&user="+encodeURIComponent(S.user)+
+   "&api_key="+encodeURIComponent(S.key);
+
+  const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const data=await response.json();
+
+  if(version!==pollVersion||controller.signal.aborted)return;
+
+  if(data.error){
+   $("status").textContent=data.message||"Last.fm error";
+   return;
+  }
+
+  let tracks=data.recenttracks&&data.recenttracks.track;
+  tracks=Array.isArray(tracks)?tracks:tracks?[tracks]:[];
+  const current=tracks[0];
+
+  if(!current){
+   render(null,false);
+   $("status").textContent="No listening history yet";
+   return;
+  }
+
+  const artist=current.artist&&
+   (current.artist["#text"]||current.artist.name)||"Unknown artist";
+  const playing=!!(current["@attr"]&&current["@attr"].nowplaying==="true");
+
+  render({
+   name:current.name||"Unknown track",
+   artist,
+   album:current.album&&current.album["#text"]||"",
+   art:trackArt(current)
+  },playing);
+
+  setRecent(tracks.slice(1,6).map(x=>{
+   const a=x.artist&&(x.artist["#text"]||x.artist.name)||"Unknown artist";
+   return a+" – "+(x.name||"Unknown track");
+  }));
+
+ }catch(error){
+  if(error.name!=="AbortError"&&version===pollVersion){
+   $("status").textContent="Can't reach Last.fm. Check your connection.";
+  }
+ }finally{
+  if(pollController===controller)pollController=null;
+ }
+}
+
+/* Sequential polling: no overlapping requests. */
+async function pollCycle(version){
+ await poll(version);
+ if(version!==pollVersion)return;
+ pollTimer=setTimeout(()=>pollCycle(version),Math.max(5,Number(S.pollSecs)||10)*1000);
+}
+function start(){
+ clearTimeout(pollTimer);
+ if(pollController){
+  pollController.abort();
+  pollController=null;
+ }
+ const version=++pollVersion;
+ pollCycle(version);
+}
+
+/* Clock: reuse date/time formatters rather than rebuilding options every tick. */
+let clockTimer=0;
+let lastClockMinute="";
+let lastClockDate="";
+let lastGreetingHour=-1;
+
+const timeFormats={
+ h24:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",hour12:false}),
+ h12:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",hour12:true}),
+ s24:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}),
+ s12:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}),
+ date:new Intl.DateTimeFormat(undefined,{weekday:"long",day:"numeric",month:"long"})
+};
+
+function tick(){
+ const d=new Date();
+ const minuteKey=S.showSeconds?String(d.getTime()):`${d.getHours()}:${d.getMinutes()}`;
+ if(minuteKey!==lastClockMinute){
+  lastClockMinute=minuteKey;
+  const key=(S.clock24?"24":"12")+(S.showSeconds?"s":"");
+  $("time").textContent=timeFormats[key].format(d);
+ }
+
+ const dateKey=`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+ if(dateKey!==lastClockDate){
+  lastClockDate=dateKey;
+  $("date").textContent=S.showDate?timeFormats.date.format(d):"";
+ }
+ if(!S.showDate)$("date").textContent="";
+
+ const hour=d.getHours();
+ if(hour!==lastGreetingHour||S.name!==tick.lastName){
+  lastGreetingHour=hour;
+  tick.lastName=S.name;
+  $("hi").textContent=S.name?
+   (hour<5?"Good night":hour<12?"Good morning":hour<18?"Good afternoon":"Good evening")+", "+S.name:"";
+ }
+}
+tick.lastName="";
+function updateClockTimer(){
+ clearInterval(clockTimer);
+ clockTimer=setInterval(tick,S.showSeconds?1000:15000);
+ tick();
+}
+
+/* Weather: cache geocoding coordinates and avoid duplicate refreshes. */
+const WX={
+ 0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",
+ 45:"Fog",48:"Fog",51:"Drizzle",53:"Drizzle",55:"Drizzle",
+ 61:"Rain",63:"Rain",65:"Heavy rain",71:"Snow",73:"Snow",75:"Heavy snow",
+ 80:"Showers",81:"Showers",82:"Heavy showers",95:"Thunderstorm",96:"Thunderstorm",99:"Thunderstorm"
+};
+
+let weatherTimer=0;
+let weatherVersion=0;
+let geoCache={};
+let weatherCache={key:"",time:0,text:""};
+
+async function weather(force=false){
+ const el=$("wx");
+ if(!S.showWeather||!S.city.trim()){
+  el.textContent="";
+  return;
+ }
+
+ const city=S.city.trim();
+ const units=S.units==="f"?"fahrenheit":"celsius";
+ const key=city.toLowerCase()+"|"+units;
+ const version=++weatherVersion;
+
+ if(!force&&weatherCache.key===key&&Date.now()-weatherCache.time<600000){
+  el.textContent=weatherCache.text;
+  return;
+ }
+
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),8000);
+
+ try{
+  let place=geoCache[city.toLowerCase()];
+
+  if(!place){
+   const geourl="https://geocoding-api.open-meteo.com/v1/search?count=1&name="+encodeURIComponent(city);
+   const gr=await fetch(geourl,{signal:controller.signal});
+   if(!gr.ok)throw new Error("Geocoding failed");
+   const gd=await gr.json();
+   place=gd.results&&gd.results[0];
+
+   if(!place){
+    if(version===weatherVersion)el.textContent="City not found";
+    return;
+   }
+
+   place={latitude:place.latitude,longitude:place.longitude,name:place.name};
+   geoCache[city.toLowerCase()]=place;
+  }
+
+  const url="https://api.open-meteo.com/v1/forecast?latitude="+place.latitude+
+   "&longitude="+place.longitude+"&current=temperature_2m,weather_code"+
+   "&temperature_unit="+units;
+
+  const wr=await fetch(url,{signal:controller.signal});
+  if(!wr.ok)throw new Error("Weather request failed");
+  const wd=await wr.json();
+
+  if(version!==weatherVersion)return;
+  if(!wd.current)throw new Error("Weather data missing");
+
+  const text=Math.round(wd.current.temperature_2m)+"°"+
+   (S.units==="f"?"F":"C")+" "+(WX[wd.current.weather_code]||"")+", "+place.name;
+
+  weatherCache={key,time:Date.now(),text};
+  el.textContent=text;
+
+ }catch(error){
+  if(version===weatherVersion){
+   if(weatherCache.key===key&&weatherCache.text)el.textContent=weatherCache.text;
+   else el.textContent="Weather unavailable";
+  }
+ }finally{
+  clearTimeout(timeout);
+ }
+}
+
+clearInterval(weatherTimer);
+weatherTimer=setInterval(()=>weather(),900000);
+
+/* Quick links: only rebuilt at startup or when links change. */
+function renderLinks(){
+ const nav=$("links");
+ const frag=document.createDocumentFragment();
+
+ for(const link of S.links){
+  const a=document.createElement("a");
+  const ic=document.createElement("span");
+  const img=new Image();
+  let host="";
+
+  try{
+   const parsed=new URL(link.u);
+   if(!["http:","https:"].includes(parsed.protocol))continue;
+   host=parsed.hostname;
+  }catch{continue;}
+
+  a.href=link.u;
+  a.rel="noopener noreferrer";
+  ic.className="ic";
+  img.alt="";
+  img.width=24;
+  img.height=24;
+  img.loading="lazy";
+  img.decoding="async";
+  img.referrerPolicy="no-referrer";
+  img.src="https://www.google.com/s2/favicons?sz=64&domain="+encodeURIComponent(host);
+  img.onerror=()=>{
+   img.remove();
+   if(!ic.textContent)ic.textContent=link.n.charAt(0).toUpperCase();
+  };
+
+  ic.appendChild(img);
+  a.appendChild(ic);
+
+  const label=document.createElement("span");
+  label.textContent=link.n;
+  a.appendChild(label);
+  frag.appendChild(a);
+ }
+
+ nav.replaceChildren(frag);
+}
+
+/* Search */
+$("search").addEventListener("submit",e=>{
+ e.preventDefault();
+ const q=$("q").value.trim();
+ if(!q)return;
+
+ const isUrl=q.indexOf(" ")===-1&&
+  /^(https?:\/\/|[\w-]+(\.[\w-]+)+(\/\S*)?$)/i.test(q);
+
+ if(isUrl){
+  let destination=/^https?:\/\//i.test(q)?q:"https://"+q;
+  try{
+   const url=new URL(destination);
+   if(!["http:","https:"].includes(url.protocol))throw new Error();
+   window.location.assign(url.href);
+  }catch{
+   window.location.assign((ENGINES[S.engine]||ENGINES.google)[1]+encodeURIComponent(q));
+  }
+ }else{
+  window.location.assign((ENGINES[S.engine]||ENGINES.google)[1]+encodeURIComponent(q));
+ }
+});
+
+/* Notes: debounce localStorage writes while typing. */
+$("note").value=S.note;
+let noteTimer=0;
+$("note").addEventListener("input",()=>{
+ S.note=$("note").value;
+ clearTimeout(noteTimer);
+ noteTimer=setTimeout(saveNow,250);
+});
+
+/* Start the interface immediately; network work runs independently. */
+renderLinks();
+apply();
+start();
+weather();
+
+if(firstRun)openPanel();
+
 })();
 </script>
 </body>
