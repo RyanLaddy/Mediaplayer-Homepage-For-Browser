@@ -6,7 +6,7 @@
 <title>Home</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
   :root {
     --bg: #121212;
@@ -266,6 +266,13 @@
   body.bg-anim .bg { animation: drift 40s ease-in-out infinite alternate; }
   @keyframes drift { to { transform: scale(1.15) rotate(3deg); } }
   #panel input[type=date] { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: #121212; color: var(--ink); font: inherit; color-scheme: dark; }
+  .chip { flex: none; height: 26px; padding: 0 10px; border-radius: 13px; border: 0; background: rgba(255,255,255,.1); color: var(--dim); font: inherit; font-size: .78rem; cursor: pointer; }
+  .chip:hover { color: var(--ink); }
+  .sbtn { flex: none; display: none; border: 0; background: none; color: var(--dim); font-size: 1.1rem; cursor: pointer; padding: 0 4px; }
+  .sbtn:hover { color: var(--ink); } .search.has-text #clr, .search #mic { display: block; } #mic.on { color: #ff6b6b; }
+  body.no-chip .chip, body.no-clr #clr, body.no-mic #mic { display: none !important; }
+  .si.c { color: var(--accent); font-weight: 600; } .si.k { color: var(--dim); }
+  body[data-state=paused] .status { color: #e6b450; }
   @media (max-width: 760px) { .widgets { display: none; } }
 
   @media (max-width: 760px) {
@@ -291,8 +298,8 @@
 
   <form class="search" id="search" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <input id="q" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Search">
-    <div class="sug" id="sug"></div>
+    <button type="button" class="chip" id="chip" title="Click to change search engine"></button><input id="q" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Search">
+    <button type="button" class="sbtn" id="clr" aria-label="Clear">×</button><button type="button" class="sbtn" id="mic" aria-label="Voice search">🎤</button><div class="sug" id="sug"></div>
   </form>
 
   <div class="clock"><div class="hi" id="hi"></div><div class="time" id="time"></div><div class="date" id="date"></div><div class="wx" id="wx"></div></div>
@@ -349,7 +356,7 @@
     ],
     showNotes: true, note: "", showRecent: true,
     bgMode: "art", bgColor: "#161616", vinylSize: 100, peek: 50,
-    reverse: false, onlyPlaying: false, pollSecs: 10,
+    reverse: false, onlyPlaying: false, pollSecs: 3, keepPaused: true, showSince: false, notify: false, slowHidden: true, stopMins: 30, txtPlaying: "Playing", txtPaused: "Paused", txtStopped: "Stopped", calc: true, engineChip: true, clearBtn: true, voiceBtn: false, topSites: true, linkMatch: true, autoFocus: true, typeToSearch: true, v3: 0,
     threeD: true, invert: false, tilt: 14, depth: 24, persp: 1100, smooth: .08, float: 6, gloss: 60, bgShift: 24, textShift: 8,
     tStyle: "vinyl", tMs: 700, ease: "cubic-bezier(.2,.8,.2,1)",
     layout: "row", align: "left", textColor: "#ededed", accent: "#ededed", vinylColor: "#0e0e0e",
@@ -384,13 +391,19 @@
     bing: ["Bing", "https://www.bing.com/search?q="],
     brave: ["Brave", "https://search.brave.com/search?q="],
     youtube: ["YouTube", "https://www.youtube.com/results?search_query="],
-    wiki: ["Wikipedia", "https://en.wikipedia.org/w/index.php?search="]
+    wiki: ["Wikipedia", "https://en.wikipedia.org/w/index.php?search="],
+    images: ["Google Images", "https://www.google.com/search?tbm=isch&q="],
+    maps: ["Google Maps", "https://www.google.com/maps/search/"],
+    github: ["GitHub", "https://github.com/search?q="],
+    reddit: ["Reddit", "https://www.reddit.com/search/?q="],
+    amazon: ["Amazon", "https://www.amazon.com/s?k="]
   };
 
   function read(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   var S = Object.assign({}, DEF, read(OLD) || {}, read(STORE) || {});
   var firstRun = !read(STORE) && !(read(OLD) && read(OLD).user);
   function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
+  if (!S.v3) { S.pollSecs = Math.min(S.pollSecs, 3); S.tMs = Math.min(S.tMs, 450); S.v3 = 1; save(); }
 
   /* ---------- apply settings to the page ---------- */
   function apply() {
@@ -441,6 +454,8 @@
       "url(#gamma) brightness(" + S.brightness + "%) contrast(" + S.contrast + "%) saturate(" + S.saturate +
       "%) hue-rotate(" + S.hue + "deg) grayscale(" + S.gray + "%)";
     $("q").placeholder = "Search " + ENGINES[S.engine][0] + " or type a URL";
+    $("chip").textContent = ENGINES[S.engine][0];
+    b.toggle("no-chip", !S.engineChip); b.toggle("no-clr", !S.clearBtn); b.toggle("no-mic", !S.voiceBtn);
   }
 
   /* ---------- settings panel ---------- */
@@ -457,7 +472,7 @@
     gray:       ["Grayscale", 0, 100, 1, "%"],
     vinylSize:  ["Vinyl size", 60, 140, 1, "%"],
     peek:       ["Vinyl peek", 15, 90, 1, "%"],
-    pollSecs:   ["Check music every", 1, 60, 1, "s"],
+    pollSecs:   ["Check music every", 1, 60, 1, "s"], stopMins: ["Mark as stopped after (0 = never)", 0, 120, 1, " min"],
     tilt:       ["Tilt strength", 0, 35, 1, "°"],
     depth:      ["Layer depth", 0, 120, 1, "px"],
     persp:      ["Perspective", 300, 3000, 10, "px"],
@@ -505,7 +520,7 @@
     showText: "Track details", showStatus: "Status line", showRecent: "Recently played",
     showClock: "Clock", clock24: "24-hour time", showSeconds: "Seconds", showDate: "Date", showWeather: "Weather",
     showLinks: "Quick links", showNotes: "Notes", showBlur: "Blurred background",
-    suggest: "Search suggestions", autofill: "Inline autofill", searchBorder: "Search bar border", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", showViz: "Visualizer", vizEdit: "Drag to move, drag the corner dot to resize", vizRound: "Rounded shapes", statusEq: "Animated status bars",
+    keepPaused: "Keep showing the paused song", showSince: "Show how long it has played", notify: "Notify when the song changes", slowHidden: "Check less often in background tabs", calc: "Calculator in search", engineChip: "Engine button", clearBtn: "Clear button", voiceBtn: "Voice search button", topSites: "Show quick links when search is empty", linkMatch: "Match quick links while typing", autoFocus: "Focus the search bar on load", typeToSearch: "Type anywhere to search", suggest: "Search suggestions", autofill: "Inline autofill", searchBorder: "Search bar border", history: "Search history", shortcuts: "Engine shortcuts", newTab: "Open results in new tab", showViz: "Visualizer", vizEdit: "Drag to move, drag the corner dot to resize", vizRound: "Rounded shapes", statusEq: "Animated status bars",
     wPomo: "Focus timer", wTodo: "To-do list", wCd: "Countdown", wWc: "World clock", wYear: "Year progress", wCal: "Calendar", wQuote: "Daily quote",
     weekMon: "Week starts Monday", pomoSound: "Timer sound", bgAnim: "Moving background", pOn: "Floating particles",
     hotkeys: "Keyboard shortcuts", clickSpin: "Click vinyl to pause or play spin", wheelSpin: "Scroll on vinyl to change speed",
@@ -534,6 +549,8 @@
       '<p class="hint">Reads what you\'re playing from Last.fm. Get a <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">free API key</a> and <a href="https://www.last.fm/settings/applications" target="_blank" rel="noopener">link your music app</a>.</p>' +
       '<h3>Search</h3>' +
       '<div class="row col"><span>Search engine</span><select id="engine">' + engineOpts + '</select></div>' +
+      '<details class="grp" open><summary>Music status</summary>' + ["keepPaused", "showSince", "notify", "slowHidden"].map(toggleRow).join("") +
+        sliderRow("stopMins") + sliderRow("pollSecs") + txt("txtPlaying", "Playing label") + txt("txtPaused", "Paused label") + txt("txtStopped", "Stopped label") + '</details>' +
       '<details class="grp" open><summary>Visualizer and beat</summary>' + toggleRow("showViz") +
         sel("vizStyle", "Type", { bars: "Equalizer bars", mirror: "Mirrored bars", segments: "Retro LED blocks", dots: "Dot matrix", spikes: "Spikes", wave: "Sound wave", area: "Smooth mountains", ring: "Circular bars", orb: "Pulsing orb", pulse: "Ripple rings" }) + sel("vizFrom", "Grows", { bottom: "Upward", top: "Downward" }) +
         sel("vizSrc", "Audio source", { sim: "Simulated (follows play state)", mic: "Microphone (real beat)", system: "Share tab or screen audio (real beat)" }) +
@@ -556,10 +573,10 @@
         sel("cdPos", "Corner position", { tl: "Top left", tr: "Top right", bl: "Bottom left", br: "Bottom right" }) +
         sel("marker", "Rotation marker", { none: "None", dot: "Dot", line: "Line" }) +
         ["cdCoverSize", "cdHue", "grooveGap", "grooveAlpha", "shine", "shineSpin", "markerAlpha"].map(sliderRow).join("") + '</details>' +
-      '<details class="grp"><summary>Search bar</summary>' + toggleRow("suggest") + toggleRow("autofill") + toggleRow("searchBorder") + toggleRow("history") + toggleRow("shortcuts") + toggleRow("newTab") +
+      '<details class="grp"><summary>Search bar</summary>' + ["suggest", "autofill", "calc", "engineChip", "clearBtn", "voiceBtn", "topSites", "linkMatch", "autoFocus", "typeToSearch"].map(toggleRow).join("") + toggleRow("searchBorder") + toggleRow("history") + toggleRow("shortcuts") + toggleRow("newTab") +
         sel("searchPos", "Position", { top: "Top", bottom: "Bottom" }) +
         ["sugCount", "searchH", "searchR", "searchOp", "searchBlur"].map(sliderRow).join("") +
-        '<p class="hint">Shortcuts: start with g, d, b, y, w or s and a space to use Google, DuckDuckGo, Bing, YouTube, Wikipedia or Brave for that search.</p></details>' +
+        '<p class="hint">Shortcuts: start with g (Google), d (DuckDuckGo), b (Bing), y (YouTube), w (Wikipedia), s (Brave), i (Images), m (Maps), gh (GitHub), r (Reddit) or a (Amazon), then a space. Type a sum like 12*7 for a quick answer. Browsers keep the address bar focused on a new tab; type-anywhere helps, but only an extension can fully override that.</p></details>' +
       '<details class="grp"><summary>Clock, links and notes</summary>' + sel("clockPos", "Clock position", { tl: "Top left", tr: "Top right" }) +
         ["clockSize", "linkSize", "noteW", "noteH", "noteOp", "titleWeight"].map(sliderRow).join("") + '</details>' +
       '<details class="grp" open><summary>3D and motion</summary>' + toggleRow("threeD") + toggleRow("invert") +
@@ -602,6 +619,7 @@
       S[el.dataset.t] = el.checked;
       if (el.dataset.t === "demo") start();
       if (el.dataset.t === "showWeather") weather();
+      if (el.dataset.t === "notify" && el.checked && window.Notification) Notification.requestPermission();
     } else if (el.id === "engine") { S.engine = el.value; }
     else if (el.type === "color") { S[el.dataset.k] = el.value; }
     else return;
@@ -647,7 +665,7 @@
     if (e.key === "Escape") closePanel();
     var t = e.target.tagName;
     if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
-    if (!S.hotkeys) return;
+    if (!S.hotkeys || S.typeToSearch) return;
     if (e.key === "/") { e.preventDefault(); $("q").focus(); }
     else if (e.key === "f" || e.key === "F") toggleFs();
     else if (e.key === ",") { panel.classList.contains("open") ? closePanel() : openPanel(); }
@@ -683,10 +701,13 @@
     Promise.all(outs.map(function (o) { return o.finished; })).then(fin, fin);
     setTimeout(fin, half + 150);
   }
-  function render(t, playing) {
+  function render(t, playing, state) {
     isPlaying = playing; cur = t;
     document.body.classList.toggle("idle", !playing);
-    $("status").textContent = playing ? "Now playing" : (t ? "Last played" : "Not connected");
+    var st = state || (playing ? "playing" : t ? "last" : "none");
+    document.body.dataset.state = st;
+    $("status").textContent = { playing: S.txtPlaying, paused: S.txtPaused, stopped: S.txtStopped, last: "Last played", none: "Not connected" }[st] +
+      (S.showSince && st === "playing" ? " · " + Math.max(0, Math.round((Date.now() - since) / 60000)) + " min" : "");
     if (!t) {
       $("title").textContent = "Nothing playing";
       $("artist").textContent = ""; $("album").textContent = "";
@@ -696,7 +717,8 @@
     document.title = (playing ? "♪ " : "") + t.name + " – " + t.artist;
     var id = t.name + "|" + t.artist + "|" + t.art;
     if (id === lastId) return;
-    lastId = id;
+    lastId = id; since = Date.now();
+    if (shown && playing && S.notify && window.Notification && Notification.permission === "granted") { try { new Notification(t.name, { body: t.artist, silent: true }); } catch (x) {} }
     function go() {
       swap(function () {
         $("title").textContent = t.name; $("artist").textContent = t.artist; $("album").textContent = t.album; setArt(t.art);
@@ -704,33 +726,44 @@
     }
     if (t.art) { var fired = false, once = function () { if (!fired) { fired = true; go(); } }; var im = new Image(); im.onload = im.onerror = once; im.src = t.art; setTimeout(once, 2000); } else go();
   }
+  var inFlight = false, since = Date.now(), lastPlay = null, lastAt = 0;
+  try { var sv = JSON.parse(localStorage.getItem("webhome-last")); if (sv && sv.t) { lastPlay = sv.t; lastAt = sv.at; } } catch (e) {}
+  function toTrack(x) {
+    var imgs = x.image || [], art = "", i;
+    for (i = imgs.length - 1; i >= 0; i--) { var src = imgs[i]["#text"]; if (src && src.indexOf(PLACEHOLDER) === -1) { art = src; break; } }
+    return { name: x.name, artist: x.artist["#text"] || x.artist.name, album: x.album ? x.album["#text"] : "", art: art };
+  }
   async function poll() {
+    if (inFlight) return;
     if (S.demo) { render({ name: "Midnight City", artist: "M83", album: "Hurry Up, We're Dreaming", art: "" }, true); setRecent(["Daft Punk – Digital Love", "Röyksopp – Remind Me", "Justice – D.A.N.C.E."]); return; }
     if (!S.user || !S.key) { render(null, false); return; }
+    inFlight = true;
     try {
-      var u = "https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=7&format=json" +
-        "&user=" + encodeURIComponent(S.user) + "&api_key=" + encodeURIComponent(S.key);
-      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 10000);
-      var data = await (await fetch(u, { signal: ctl.signal })).json();
+      var u = "https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=7&format=json&user=" + encodeURIComponent(S.user) + "&api_key=" + encodeURIComponent(S.key) + "&_=" + Date.now();
+      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 8000);
+      var data = await (await fetch(u, { signal: ctl.signal, cache: "no-store" })).json();
       clearTimeout(to);
       if (data.error) { $("status").textContent = data.message || "Last.fm error"; return; }
-      var all = data.recenttracks.track;
-      all = Array.isArray(all) ? all : (all ? [all] : []);
-      var tr = all[0];
-      if (!tr) { render(null, false); $("status").textContent = "No listening history yet"; return; }
-      var imgs = tr.image || [], art = "";
-      for (var i = imgs.length - 1; i >= 0; i--) {
-        var src = imgs[i]["#text"];
-        if (src && src.indexOf(PLACEHOLDER) === -1) { art = src; break; }
+      var all = data.recenttracks.track; all = Array.isArray(all) ? all : (all ? [all] : []);
+      if (!all.length) { render(null, false); $("status").textContent = "No listening history yet"; return; }
+      var playing = !!(all[0]["@attr"] && all[0]["@attr"].nowplaying === "true"), t = toTrack(all[0]), rest = all.slice(1), state = playing ? "playing" : "last", now = Date.now();
+      if (playing) { lastPlay = t; lastAt = now; try { localStorage.setItem("webhome-last", JSON.stringify({ t: t, at: now })); } catch (e) {} }
+      else if (S.keepPaused && lastPlay) {
+        if (!S.stopMins || now - lastAt < S.stopMins * 60000) {
+          t = lastPlay; state = "paused";
+          rest = all.filter(function (x) { return !(x.name === t.name && (x.artist["#text"] || x.artist.name) === t.artist); });
+        } else state = "stopped";
       }
-      render({ name: tr.name, artist: tr.artist["#text"] || tr.artist.name, album: tr.album["#text"], art: art },
-             !!(tr["@attr"] && tr["@attr"].nowplaying === "true"));
-      setRecent(all.slice(1, 6).map(function (x) { return (x.artist["#text"] || x.artist.name) + " – " + x.name; }));
+      render(t, playing, state);
+      setRecent(rest.slice(0, 5).map(function (x) { return (x.artist["#text"] || x.artist.name) + " – " + x.name; }));
     } catch (e) {
       $("status").textContent = e && e.name === "AbortError" ? "Last.fm took too long to answer. Retrying…" : "Can't reach Last.fm (" + (e && e.message ? e.message : "unknown error") + ")";
-    }
+    } finally { inFlight = false; }
   }
-  function start() { clearInterval(timer); poll(); timer = setInterval(poll, S.pollSecs * 1000); }
+  function start() {
+    clearTimeout(timer);
+    (function loop() { poll(); timer = setTimeout(loop, document.hidden && S.slowHidden ? 15000 : Math.max(1, S.pollSecs) * 1000); })();
+  }
   function setRecent(list) {
     var ol = $("recent"); ol.innerHTML = "";
     list.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ol.appendChild(li); });
@@ -773,23 +806,34 @@
   }
 
   /* ---------- search + suggestions ---------- */
-  var SHORT = { g: "google", d: "duck", b: "bing", y: "youtube", w: "wiki", s: "brave" };
+  var SHORT = { g: "google", d: "duck", b: "bing", y: "youtube", w: "wiki", s: "brave", i: "images", m: "maps", gh: "github", r: "reddit", a: "amazon" };
   var sugList = [], sugIdx = -1, sugTimer = null, sugSeq = 0, qEl = $("q"), box = $("sug");
   function go(q) {
     q = q.trim(); if (!q) return;
-    var m = S.shortcuts && q.match(/^([gdbyws])\s+(.+)/i), eng = S.engine;
+    var m = S.shortcuts && q.match(/^([a-z]{1,2})\s+(.+)/i), eng = S.engine;
+    if (m && !SHORT[m[1].toLowerCase()]) m = null;
     if (m) { eng = SHORT[m[1].toLowerCase()]; q = m[2]; }
     if (S.history) { S.hist = [q].concat((S.hist || []).filter(function (x) { return x !== q; })).slice(0, 30); save(); }
     var isUrl = !m && q.indexOf(" ") === -1 && /^(https?:\/\/|[\w-]+(\.[\w-]+)+(\/\S*)?$)/i.test(q);
     var url = isUrl ? (/^https?:\/\//i.test(q) ? q : "https://" + q) : ENGINES[eng][1] + encodeURIComponent(q);
     if (S.newTab) window.open(url, "_blank"); else window.location.href = url;
   }
+  function calcOf(v) {
+    if (!/^[0-9+\-*/().,%^ ]+$/.test(v) || !/\d\s*[+\-*/^]\s*[\d(.]/.test(v)) return null;
+    try { var r = Function('"use strict"; return (' + v.replace(/,/g, ".").replace(/\^/g, "**").replace(/%/g, "/100") + ")")(); return isFinite(r) ? +r.toFixed(10) : null; } catch (e) { return null; }
+  }
+  function activate(it) {
+    hideSug();
+    if (it.u) { if (S.newTab) window.open(it.u, "_blank"); else window.location.href = it.u; }
+    else if (it.c) { qEl.value = it.c; typed = it.c; try { navigator.clipboard.writeText(it.c); } catch (e) {} }
+    else { qEl.value = it.t; go(it.t); }
+  }
   function hideSug() { box.style.display = "none"; sugIdx = -1; }
   function showSug(items) {
     sugList = items; sugIdx = -1; box.innerHTML = "";
     items.forEach(function (it) {
-      var d = document.createElement("div"); d.className = "si" + (it.h ? " h" : ""); d.textContent = it.t;
-      d.onmousedown = function (e) { e.preventDefault(); qEl.value = it.t; hideSug(); go(it.t); };
+      var d = document.createElement("div"); d.className = "si" + (it.h ? " h" : "") + (it.c ? " c" : "") + (it.u ? " k" : ""); d.textContent = it.t;
+      d.onmousedown = function (e) { e.preventDefault(); activate(it); };
       box.appendChild(d);
     });
     box.style.display = items.length ? "block" : "none";
@@ -809,7 +853,12 @@
     var v = qEl.value.trim(), lo = v.toLowerCase(), seq = ++sugSeq;
     var hist = S.history ? (S.hist || []).filter(function (h) { return !v || h.toLowerCase().indexOf(lo) >= 0; }).slice(0, v ? 2 : S.sugCount) : [];
     var hItems = hist.map(function (t) { return { t: t, h: 1 }; });
-    if (!S.suggest || !v) { showSug(hItems); return; }
+    var pre = [], cv = S.calc && v ? calcOf(v) : null;
+    if (cv !== null) pre.push({ t: "= " + cv, c: String(cv), q: v });
+    if (S.linkMatch && v) S.links.forEach(function (l) { if (pre.length < 3 && l.n.toLowerCase().indexOf(lo) === 0) pre.push({ t: "Open " + l.n, u: l.u, q: v }); });
+    hItems = pre.concat(hItems);
+    if (!v && S.topSites) S.links.slice(0, S.sugCount).forEach(function (l) { hItems.push({ t: l.n, u: l.u, q: "" }); });
+    if (!S.suggest || !v) { showSug(hItems.slice(0, S.sugCount + 3)); return; }
     showSug(hItems);
     sugTimer = setTimeout(async function () {
       try {
@@ -857,14 +906,15 @@
       e.preventDefault(); var n = sugList.length;
       if (sugIdx === -1) typed = hasSel ? qEl.value.slice(0, qEl.selectionStart) : qEl.value;
       sugIdx = e.key === "ArrowDown" ? (sugIdx + 1 >= n ? -1 : sugIdx + 1) : (sugIdx - 1 < -1 ? n - 1 : sugIdx - 1);
-      qEl.value = sugIdx >= 0 ? sugList[sugIdx].t : typed;
+      qEl.value = sugIdx >= 0 ? (sugList[sugIdx].q != null ? sugList[sugIdx].q : sugList[sugIdx].t) : typed;
       mark();
     }
   });
   $("search").addEventListener("submit", function (e) {
     e.preventDefault();
-    var q = sugIdx >= 0 && sugList[sugIdx] ? sugList[sugIdx].t : qEl.value;
-    hideSug(); go(q);
+    var it = sugIdx >= 0 ? sugList[sugIdx] : null;
+    if (it && (it.u || it.c)) { activate(it); return; }
+    var q = qEl.value; hideSug(); go(q);
   });
 
   $("note").value = S.note;
@@ -1044,6 +1094,28 @@
   }, { passive: false });
   ["mousemove", "keydown", "touchstart"].forEach(function (ev) { document.addEventListener(ev, function () { lastMove = Date.now(); }); });
 
+  function focusSearch() {
+    var ae = document.activeElement;
+    if (S.autoFocus && S.showSearch && (!ae || ae === document.body) && !panel.classList.contains("open")) qEl.focus({ preventScroll: true });
+  }
+  [0, 60, 200, 500, 1000, 2500].forEach(function (ms) { setTimeout(focusSearch, ms); });
+  window.addEventListener("focus", focusSearch); window.addEventListener("pageshow", focusSearch);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { focusSearch(); poll(); } });
+  document.addEventListener("keydown", function (e) {
+    var t = e.target.tagName, typing = t === "INPUT" || t === "TEXTAREA" || t === "SELECT";
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k" && S.hotkeys) { e.preventDefault(); qEl.focus(); qEl.select(); return; }
+    if (S.typeToSearch && S.showSearch && !typing && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1 && !panel.classList.contains("open")) qEl.focus();
+  });
+  $("chip").addEventListener("click", function () { var k = Object.keys(ENGINES); S.engine = k[(k.indexOf(S.engine) + 1) % k.length]; save(); apply(); qEl.focus(); });
+  $("clr").addEventListener("click", function () { qEl.value = ""; typed = ""; $("search").classList.remove("has-text"); hideSug(); qEl.focus(); suggest(); });
+  qEl.addEventListener("input", function () { $("search").classList.toggle("has-text", !!qEl.value); });
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  $("mic").addEventListener("click", function () {
+    if (!SR) { $("status").textContent = "Voice search isn't supported in this browser."; return; }
+    var rc = new SR(); rc.lang = navigator.language; $("mic").classList.add("on");
+    rc.onresult = function (e) { qEl.value = e.results[0][0].transcript; go(qEl.value); };
+    rc.onend = rc.onerror = function () { $("mic").classList.remove("on"); }; rc.start();
+  });
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   function placePreset(name) {
     var P = { above: { vizX: 50, vizY: 78, vizW: 56, vizHeight: 110 }, bottom: { vizX: 50, vizW: 100, vizHeight: 160 }, top: { vizX: 50, vizW: 100, vizHeight: 160 },
