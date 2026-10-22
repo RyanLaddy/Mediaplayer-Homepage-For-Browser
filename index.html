@@ -115,6 +115,15 @@
   body.no-search .search { display: none; }
   body.no-search main { padding-top: 40px; }
 
+  /* settings */
+  .gear {
+    position: fixed; right: 18px; bottom: 18px; z-index: 20;
+    width: 42px; height: 42px; border-radius: 10px; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--line); color: var(--dim);
+    display: grid; place-items: center;
+  }
+  .gear:hover { color: var(--ink); }
+  .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
   button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #aaa; outline-offset: 2px; }
 
   #panel {
@@ -231,7 +240,7 @@
   body.viz-edit #vizbox { z-index: 6; pointer-events: auto; cursor: move; outline: 1px dashed rgba(255,255,255,.55); background: rgba(255,255,255,.04); touch-action: none; }
   body.viz-edit #vizh { display: block; }
   body.no-viz #vizbox, body.no-fxp #fxp { display: none; }
-  .widgets { position: absolute; top: 24px; right: 30px; width: 230px; display: flex; flex-direction: column; gap: 10px; z-index: 4; }
+  .widgets { position: absolute; top: 24px; right: 30px; width: 230px; max-height: calc(100vh - 48px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; z-index: 4; }
   .w { background: rgba(18,18,18,var(--wo, .6)); border-radius: 12px; padding: 12px 14px; font-size: .85rem; }
   .wt { color: var(--dim); font-size: .75rem; margin-bottom: 6px; }
   .big { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -247,8 +256,8 @@
   .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: .75rem; }
   .cal b { color: var(--dim); font-weight: 500; } .cal .t { background: var(--accent); color: #111; border-radius: 50%; }
   body.hide-pomo #w-pomo, body.hide-todo #w-todo, body.hide-cd #w-cd, body.hide-wc #w-wc, body.hide-year #w-yr, body.hide-cal #w-cal, body.hide-quote #w-q { display: none; }
-  .search, .clock, .links, .notes, .widgets { transition: opacity .5s; }
-  body.ui-hide .search, body.ui-hide .clock, body.ui-hide .links, body.ui-hide .notes, body.ui-hide .widgets { opacity: 0; pointer-events: none; }
+  .search, .clock, .links, .notes, .widgets, .gear { transition: opacity .5s; }
+  body.ui-hide .search, body.ui-hide .clock, body.ui-hide .links, body.ui-hide .notes, body.ui-hide .widgets, body.ui-hide .gear { opacity: 0; pointer-events: none; }
   body.lh .links a { transition: transform .15s; } body.lh .links a:hover { transform: scale(1.18); }
   body.tl h1 { cursor: pointer; } body.tl h1:hover { text-decoration: underline; text-underline-offset: 6px; }
   .eq { display: none; width: 14px; height: 12px; align-items: flex-end; gap: 2px; margin-right: 8px; vertical-align: -1px; }
@@ -266,6 +275,7 @@
   body.no-chip .chip, body.no-clr #clr, body.no-mic #mic { display: none !important; }
   .si.c { color: var(--accent); font-weight: 600; } .si.k { color: var(--dim); }
   body[data-state=paused] .status { color: #e6b450; }
+  .gear { display: none; } body.gear-on .gear { display: grid; }
   #panel { --ink: #ededed; --dim: #8c8c8c; color: #ededed; }
   #panel textarea { width: 100%; height: 120px; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: #121212; color: #ededed; font: 12px ui-monospace, Consolas, monospace; resize: vertical; }
   #panel input[readonly] { cursor: pointer; }
@@ -284,7 +294,7 @@
   body.news .w { background: transparent; border-radius: 0; border-top: 3px double var(--ink); } body.news .search, body.news .ic, body.news .chip { background: rgba(0,0,0,.07); }
   body.news .sleeve { box-shadow: 0 6px 18px rgba(0,0,0,.25); } body.news.ng .sleeve, body.news.ng .label { filter: grayscale(1) contrast(1.1); }
   html:has(body.overlay), body.overlay { background: transparent !important; }
-  body.overlay .bg, body.overlay .veil, body.overlay .fx, body.overlay #sky, body.overlay .widgets, body.overlay .search, body.overlay .clock, body.overlay .links, body.overlay .notes, body.overlay .mast, body.overlay #toast { display: none !important; }
+  body.overlay .bg, body.overlay .veil, body.overlay .fx, body.overlay #sky, body.overlay .widgets, body.overlay .search, body.overlay .clock, body.overlay .links, body.overlay .notes, body.overlay .mast, body.overlay .gear, body.overlay #toast { display: none !important; }
   body.overlay main { zoom: var(--ovs, 1); padding: 24px; min-height: 0; justify-content: flex-start; } body.overlay.ov-center main { justify-content: center; }
   @media (max-width: 760px) { .widgets { display: none; } }
 
@@ -352,6 +362,9 @@
   </main>
 </div>
 
+<button class="gear" id="gear" aria-label="Settings" title="Settings">
+  <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+</button>
 <div class="glx" id="glx"><canvas id="gxc"></canvas><button id="gxx" aria-label="Close">×</button><div class="gl" id="gxl"></div></div>
 <div id="toast"></div>
 <aside id="panel" aria-label="Settings"></aside>
@@ -391,7 +404,7 @@
     cdName: "", cdDate: "", wcZone: "America/New_York", quoteCustom: "", todos: [], widgetOp: 60,
     bgColor2: "#3a2a6a", bgAngle: 135, bgImage: "", bgAnim: false, pOn: false, pCount: 40, pSpeed: 100, pSize: 3, pOp: 40, theme: "",
     hotkeys: true, autoFs: true,
-    hkSettings: "ctrl+shift+,", hkGalaxy: "ctrl+alt+g", hkNews: "ctrl+alt+n", hkSound: "ctrl+alt+m", rightClick: true, v4: 0,
+    hkSettings: "ctrl+.", hkGalaxy: "ctrl+alt+g", hkNews: "ctrl+alt+n", hkSound: "ctrl+alt+m", rightClick: true, showGear: false, v4: 0,
     wLc: false, wGr: false, wOtd: false, wTm: false, wSnd: false, wRadio: false, wWm: false,
     histDays: 30, histPages: 3, lcStyle: "radial", lcLabels: true, grWeeks: 26, grLabels: true, grShape: "rounded",
     otdYears: "1,2,5", otdCount: 3, tmUser: "", tmPeriod: "overall", tmCount: 50,
@@ -436,718 +449,12 @@
   function read(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   var S = Object.assign({}, DEF, read(OLD) || {}, read(STORE) || {});
   var firstRun = !read(STORE) && !(read(OLD) && read(OLD).user);
-  /* ---------- shared helpers ---------- */
-  var PERIODS = { overall: "All time", "7day": "Last 7 days", "1month": "Last month", "3month": "Last 3 months", "6month": "Last 6 months", "12month": "Last year" };
-  function accentColor() { return S.accent || "#ededed"; }
-  function hueOf(s) { var h = 0, i; s = String(s || ""); for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
-
-  /* ---------- community visualizers ---------- */
-  var COMM = { viz: {
-    "Ripple rings": 'for (var i = 0; i < lv.length; i++) {\n  var v = lv[i] || 0, r = (1 - v) * Math.min(w, h) * 0.42;\n  g.globalAlpha = 0.05 + v * 0.5;\n  g.strokeStyle = accent;\n  g.lineWidth = 1 + v * 3;\n  g.beginPath();\n  g.arc(w / 2, h / 2, r + Math.sin(t / 900 + i) * 4, 0, Math.PI * 2);\n  g.stroke();\n}',
-    "Starfield": 'g.fillStyle = accent;\nfor (var i = 0; i < lv.length; i++) {\n  var v = lv[i] || 0;\n  for (var j = 0; j < 3; j++) {\n    var a = i * 1.7 + j * 2.1 + t / 9000;\n    var d = (0.2 + ((i * 7 + j * 13) % 100) / 100) * Math.min(w, h) * 0.5;\n    var s = 0.6 + v * 3.2;\n    g.globalAlpha = 0.15 + v * 0.85;\n    g.fillRect(w / 2 + Math.cos(a) * d, h / 2 + Math.sin(a) * d, s, s);\n  }\n}',
-    "Lissajous": 'var n = lv.length || 16;\nvar amp = Math.min(w, h) * 0.42;\ng.globalAlpha = 0.85; g.strokeStyle = accent; g.lineWidth = 1.6; g.beginPath();\nfor (var i = 0; i <= 360; i++) {\n  var a = i / 360 * Math.PI * 2;\n  var k = 2 + Math.round((lv[Math.floor(i / 360 * n)] || 0) * 4);\n  var x = w / 2 + Math.sin(a * k + t / 1400) * amp * 0.9;\n  var y = h / 2 + Math.sin(a * (k + 1)) * amp * 0.55;\n  if (i) g.lineTo(x, y); else g.moveTo(x, y);\n}\ng.stroke();',
-    "Tunnel": 'var n = lv.length || 16, c = Math.min(w, h) / 2;\ng.strokeStyle = accent; g.lineWidth = 1.2;\nfor (var i = 0; i < n; i++) {\n  var v = lv[i] || 0, rr = ((i / n + t / 6000) % 1) * c;\n  g.globalAlpha = 0.08 + v * 0.5;\n  g.beginPath();\n  for (var s = 0; s < 6; s++) {\n    var a = s / 6 * Math.PI * 2 + t / 5000;\n    var q = rr * (1 + v * 0.6);\n    if (s) g.lineTo(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q);\n    else g.moveTo(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q);\n  }\n  g.closePath(); g.stroke();\n}'
-  } };
-  var cvCache = { src: null, fn: null, err: "" };
-  function customViz(g, w, h, t) {
-    var n = sm.length || 1, lv = [], i;
-    for (i = 0; i < n; i++) lv.push(Math.min(1, sm[i] * (S.vizGain / 100)));
-    if (cvCache.src !== S.vizCode) {
-      cvCache.src = S.vizCode; cvCache.err = "";
-      try { cvCache.fn = new Function("g", "w", "h", "lv", "t", "accent", S.vizCode); }
-      catch (e) { cvCache.fn = null; cvCache.err = e.message; }
-    }
-    if (!cvCache.fn) {
-      g.globalAlpha = .6; g.fillStyle = accentColor(); g.font = "12px ui-monospace, monospace";
-      g.fillText("Visualizer code: " + (cvCache.err || "nothing to run"), 8, 18); return;
-    }
-    try { cvCache.fn(g, w, h, lv, t, accentColor()); }
-    catch (e) { cvCache.fn = null; cvCache.err = e.message; }
-  }
-  /* ---------- commit vinyl ---------- */
-  var cv = { rings: [], total: 0, busy: false, err: "", when: 0 };
-  function commitNote(msg) { if (msg) toast("Commit vinyl: " + msg); }
-  function drawCv() {
-    var c = $("cvn"); if (!c) return;
-    var g = c.getContext("2d"), W = c.width, R = W / 2;
-    g.clearRect(0, 0, W, W);
-    if (!cv.rings.length) return;
-    var rings = Math.max(6, Math.min(100, Math.round(S.ccRings))), inner = R * .34, outer = R * .98;
-    var step = (outer - inner) / rings, alpha = Math.max(.05, S.ccOp / 100);
-    g.save(); g.translate(R, R);
-    for (var i = 0; i < rings; i++) {
-      var seg = cv.rings[i % cv.rings.length];
-      var a0 = (i * 137.508) * Math.PI / 180;
-      g.beginPath();
-      g.strokeStyle = S.ccColor === "accent" ? accentColor() : "hsl(" + seg.hue + ",72%,66%)";
-      g.globalAlpha = alpha * (0.5 + 0.5 * ((i + 1) / rings));
-      g.lineWidth = Math.max(1, step * .42);
-      g.arc(0, 0, inner + step * (i + 1), a0, a0 + Math.PI * 1.82);
-      g.stroke();
-    }
-    g.globalAlpha = alpha;
-    g.strokeStyle = S.ccColor === "accent" ? accentColor() : "hsl(" + cv.rings[0].hue + ",72%,66%)";
-    g.lineWidth = step * .3; g.beginPath(); g.arc(0, 0, outer + step * .4, 0, 6.3); g.stroke();
-    g.restore();
-    g.globalAlpha = 1;
-  }
-  function commitLoad() {
-    if (OVERLAY) return;
-    var who = String(S.ghUser || "").trim(), repo = String(S.ghRepo || "").trim();
-    if (S.ccSource === "repo") {
-      if (!repo) { cv.rings = []; cv.err = "add a repo as owner/name"; drawCv(); commitNote(cv.err); return; }
-    } else if (!who) { cv.rings = []; cv.err = "add your GitHub username"; drawCv(); commitNote(cv.err); return; }
-    if (cv.busy) return;
-    cv.busy = true; cv.err = "";
-    var url = S.ccSource === "repo"
-      ? "https://api.github.com/repos/" + repo + "/commits?per_page=" + Math.max(10, Math.min(100, Math.round(S.ccRings) * 2))
-      : "https://api.github.com/users/" + encodeURIComponent(who) + "/events/public?per_page=100";
-    fetch(url, { headers: { Accept: "application/vnd.github+json" } }).then(function (r) {
-      if (r.status === 403 || r.status === 429) throw new Error("GitHub rate limit hit, try again later");
-      if (r.status === 404) throw new Error(S.ccSource === "repo" ? "no such repo" : "no such GitHub user");
-      if (!r.ok) throw new Error("GitHub answered " + r.status);
-      return r.json();
-    }).then(function (d) {
-      var buckets = {};
-      if (S.ccSource === "repo") {
-        (Array.isArray(d) ? d : []).forEach(function (c) {
-          var at = c && c.commit && c.commit.author ? c.commit.author.date : Date.now();
-          var day = new Date(at).toDateString();
-          buckets[day] = (buckets[day] || 0) + 1;
-        });
-      } else {
-        (Array.isArray(d) ? d : []).forEach(function (ev) {
-          if (ev.type !== "PushEvent") return;
-          (ev.payload.commits || []).forEach(function () {
-            var key = ev.repo && ev.repo.name ? ev.repo.name : "commits";
-            buckets[key] = (buckets[key] || 0) + 1;
-          });
-        });
-      }
-      cv.rings = Object.keys(buckets).map(function (k) { return { n: k, k: buckets[k], hue: hueOf(k) }; })
-        .filter(function (r) { return r.k > 0; })
-        .sort(function (a, b) { return b.k - a.k; });
-      cv.total = cv.rings.reduce(function (s, r) { return s + r.k; }, 0);
-      cv.when = Date.now();
-      drawCv(); radioTune();
-      if (S.wRadio) $("rst").textContent = cv.total ? cv.total + " commits from " + cv.rings.length + " sources" : "No commits found";
-    }).catch(function (e) {
-      cv.err = e.message || "could not reach GitHub"; commitNote(cv.err); drawCv();
-    }).then(function () { cv.busy = false; });
-  }
-
-  /* ---------- soundscapes ---------- */
-  var SND = [["Rain", "snRain", "svRain"], ["Wind", "snWind", "svWind"], ["Ocean", "snOcean", "svOcean"], ["Cafe", "snCafe", "svCafe"], ["White", "snWhite", "svWhite"], ["Brown", "snBrown", "svBrown"]];
-  var sndSig = "", snd = { ac: null, master: null, layers: {}, wbuf: null, bbuf: null };
-  function renderSnd() {
-    var b = $("sndb"); if (!b) return;
-    var sig = SND.map(function (s) { return S[s[1]] ? "1" : "0"; }).join("") + (S.sndOn ? "1" : "0");
-    if (sig === sndSig && b.children.length) return;
-    sndSig = sig;
-    b.innerHTML = SND.map(function (s) {
-      var on = S[s[1]];
-      return '<button type="button" class="chip" data-snd="' + s[0] + '" title="' + s[0] + ' soundscape" style="height:24px;font-size:.72rem;' +
-        (on ? "background:rgba(255,255,255,.26);color:var(--ink)" : "") + '">' + (on ? "\u25CF " : "") + s[0] + "</button>";
-    }).join("");
-  }
-  function noiseBuffer(kind) {
-    var ac = snd.ac, len = Math.floor(ac.sampleRate * 3), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
-    var last = 0, i, x;
-    for (i = 0; i < len; i++) {
-      x = Math.random() * 2 - 1;
-      if (kind === "brown") { last = (last + .02 * x) / 1.02; d[i] = last * 3.4; }
-      else d[i] = x * .8;
-    }
-    return buf;
-  }
-  function ensureSnd() {
-    var ACx = window.AudioContext || window.webkitAudioContext;
-    if (!ACx) return false;
-    if (!snd.ac) {
-      snd.ac = new ACx();
-      snd.master = snd.ac.createGain(); snd.master.gain.value = 0; snd.master.connect(snd.ac.destination);
-      snd.wbuf = noiseBuffer("white"); snd.bbuf = noiseBuffer("brown");
-    }
-    if (snd.ac.state === "suspended") snd.ac.resume();
-    return true;
-  }
-  function stopLayer(name) {
-    var l = snd.layers[name]; if (!l) return;
-    try { l.src.stop(); } catch (e) {}
-    (l.extra || []).forEach(function (o) { try { o.stop(); } catch (e) {} });
-    try { l.gain.disconnect(); } catch (e) {}
-    delete snd.layers[name];
-  }
-  function startLayer(name) {
-    var ac = snd.ac; if (!ac) return;
-    var row = SND.filter(function (s) { return s[0] === name; })[0]; if (!row) return;
-    var src = ac.createBufferSource(), gain = ac.createGain(), f1 = ac.createBiquadFilter(), f2 = ac.createBiquadFilter(), extra = [];
-    src.buffer = /^(Rain|White|Cafe)$/.test(name) ? snd.wbuf : snd.bbuf; src.loop = true;
-    f1.type = "lowpass"; f1.frequency.value = 18000;
-    f2.type = "highpass"; f2.frequency.value = 20;
-    if (name === "Rain") { f2.frequency.value = 500; f1.frequency.value = 7000; }
-    else if (name === "Wind") { f2.type = "bandpass"; f2.frequency.value = 420; f2.Q.value = .7; f1.frequency.value = 1400; }
-    else if (name === "Ocean") { f1.frequency.value = 700; f2.frequency.value = 30; }
-    else if (name === "Cafe") { f2.type = "bandpass"; f2.frequency.value = 700; f2.Q.value = .35; f1.frequency.value = 2600; }
-    else if (name === "Brown") { f1.frequency.value = 900; }
-    else { f1.frequency.value = 9000; }
-    gain.gain.value = 0;
-    src.connect(f2); f2.connect(f1); f1.connect(gain); gain.connect(snd.master);
-    var base = name === "Ocean" ? .45 : .7;
-    if (name === "Wind" || name === "Ocean") {
-      var lfo = ac.createOscillator(), lg = ac.createGain();
-      lfo.frequency.value = name === "Ocean" ? .08 : .13;
-      lg.gain.value = name === "Ocean" ? .28 : 240;
-      lfo.connect(lg);
-      if (name === "Ocean") lg.connect(gain.gain); else lg.connect(f2.frequency);
-      lfo.start(); extra.push(lfo);
-    }
-    gain.gain.setTargetAtTime(base * S[row[2]] / 100, ac.currentTime, .5);
-    src.start();
-    snd.layers[name] = { src: src, gain: gain, extra: extra, base: base };
-  }
-  function syncSound() {
-    if (OVERLAY) return;
-    var want = SND.filter(function (s) { return S.sndOn && S[s[1]]; }).map(function (s) { return s[0]; });
-    if (!want.length) {
-      Object.keys(snd.layers).forEach(function (k) { stopLayer(k); });
-      if (snd.ac && snd.master) snd.master.gain.setTargetAtTime(0, snd.ac.currentTime, .2);
-      return;
-    }
-    if (!ensureSnd()) return;
-    snd.master.gain.setTargetAtTime((S.sndMaster / 100) * .5, snd.ac.currentTime, .2);
-    Object.keys(snd.layers).forEach(function (k) { if (want.indexOf(k) < 0) stopLayer(k); });
-    want.forEach(function (k) {
-      var row = SND.filter(function (s) { return s[0] === k; })[0];
-      if (!snd.layers[k]) startLayer(k);
-      else if (snd.ac) snd.layers[k].gain.gain.setTargetAtTime(snd.layers[k].base * S[row[2]] / 100, snd.ac.currentTime, .2);
-    });
-  }
-
-  /* ---------- repo radio ---------- */
-  var SCALES = { pentatonic: [0, 2, 4, 7, 9], major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], blues: [0, 3, 5, 6, 7, 10] };
-  var radio = { on: false, ac: null, out: null, step: 0, next: 0, timer: null, seeds: [] };
-  function radioTune() {
-    radio.seeds = cv.rings.length ? cv.rings.map(function (r) { return r.hue; })
-      : (labsData.plays.length ? labsData.plays.slice(0, 32).map(function (p) { return hueOf(p.a + p.n); })
-      : [12, 90, 168, 246, 312, 24, 132, 210]);
-  }
-  function radioStatus(txt) { var el = $("rst"); if (el) el.textContent = txt; }
-  function radioNote() {
-    if (!radio.out || !radio.ac) return;
-    var ac = radio.ac, beat = 60 / Math.max(40, S.radioBpm) / 2, scale = SCALES[S.radioScale] || SCALES.pentatonic;
-    while (radio.next < ac.currentTime + .3) {
-      var seed = radio.seeds.length ? radio.seeds[radio.step % radio.seeds.length] : (radio.step * 37) % 360;
-      var pick = Math.floor(seed / 360 * scale.length * 2) % scale.length;
-      var oct = Math.floor(seed / 360 * 2) % 3;
-      var midi = Math.max(26, Math.min(86, S.radioRoot + scale[pick] + 12 * oct));
-      var f = 440 * Math.pow(2, (midi - 69) / 12);
-      var o = ac.createOscillator(), gn = ac.createGain();
-      o.type = S.radioWave || "triangle"; o.frequency.value = f;
-      gn.gain.setValueAtTime(.0001, radio.next);
-      gn.gain.exponentialRampToValueAtTime(.24, radio.next + .02);
-      gn.gain.exponentialRampToValueAtTime(.0001, radio.next + beat * 1.7);
-      o.connect(gn); gn.connect(radio.out); o.start(radio.next); o.stop(radio.next + beat * 1.9);
-      if (radio.step % 4 === 0) {
-        var bo = ac.createOscillator(), bg = ac.createGain();
-        bo.type = "sine"; bo.frequency.value = f / 2;
-        bg.gain.setValueAtTime(.0001, radio.next);
-        bg.gain.exponentialRampToValueAtTime(.2, radio.next + .03);
-        bg.gain.exponentialRampToValueAtTime(.0001, radio.next + beat * 3.2);
-        bo.connect(bg); bg.connect(radio.out); bo.start(radio.next); bo.stop(radio.next + beat * 3.4);
-      }
-      radio.next += beat; radio.step++;
-    }
-  }
-  function radioStop() {
-    radio.on = false;
-    if (radio.timer) { clearInterval(radio.timer); radio.timer = null; }
-    if ($("rgo")) $("rgo").textContent = "Play";
-    radioStatus(cv.rings.length ? cv.total + " commits \u00b7 paused" : "Paused");
-  }
-  function radioPlay() {
-    var ACx = window.AudioContext || window.webkitAudioContext;
-    if (!ACx) { radioStatus("This browser has no Web Audio."); return; }
-    if (radio.on) { radioStop(); return; }
-    if (!radio.ac) {
-      radio.ac = new ACx(); radio.out = radio.ac.createGain();
-      radio.out.gain.value = (S.radioVol / 100) * .5; radio.out.connect(radio.ac.destination);
-    }
-    radio.ac.resume();
-    radio.on = true; radio.next = radio.ac.currentTime + .08; radio.step = 0;
-    radioTune(); radioNote();
-    if (!radio.timer) radio.timer = setInterval(radioNote, 40);
-    $("rgo").textContent = "Stop";
-    radioStatus("Playing \u00b7 " + S.radioBpm + " bpm \u00b7 " + S.radioScale + (cv.rings.length ? " \u00b7 " + cv.rings.length + " sources" : ""));
-  }
-
-  /* ---------- weather music ---------- */
-  var NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-  var wm = { on: false, ac: null, out: null, timer: null };
-  function wmStatus(txt) { var el = $("mst"); if (el) el.textContent = txt; }
-  function wmChord() {
-    if (!wm.on || !wm.ac) return;
-    var temp = wx ? wx.t : 20, code = wx ? wx.code : 0;
-    var root = 48 + Math.round(Math.max(0, Math.min(12, (temp + 12) / 40 * 12)));
-    var sad = [61, 63, 65, 67, 80, 81, 82, 95, 96, 99].indexOf(code) >= 0;
-    var iv = sad ? [0, 3, 7, 10] : (code === 0 || code === 1 ? [0, 4, 7, 11] : [0, 4, 7, 14]);
-    var t0 = wm.ac.currentTime + .05, dur = Math.max(2, S.wmEvery) * .95;
-    iv.forEach(function (semi, i) {
-      var f = 440 * Math.pow(2, (root + semi - 69) / 12);
-      var o = wm.ac.createOscillator(), gn = wm.ac.createGain();
-      o.type = i === 0 ? "sine" : "triangle"; o.frequency.value = f;
-      gn.gain.setValueAtTime(.0001, t0 + i * .12);
-      gn.gain.linearRampToValueAtTime(.14 / (i + 1) + .04, t0 + i * .12 + .5);
-      gn.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-      o.connect(gn); gn.connect(wm.out); o.start(t0 + i * .12); o.stop(t0 + dur + .1);
-    });
-    var nm = NOTES[root % 12];
-    wmStatus((wx ? Math.round(temp) + "\u00b0" + S.units.toUpperCase() : "no weather") + " \u00b7 " + nm + (sad ? " minor" : " major") + " \u00b7 every " + S.wmEvery + "s");
-  }
-  function wmToggle() {
-    var ACx = window.AudioContext || window.webkitAudioContext;
-    if (!ACx) { wmStatus("This browser has no Web Audio."); return; }
-    if (wm.on) {
-      wm.on = false; clearInterval(wm.timer); wm.timer = null;
-      $("mgo").textContent = "Play"; wmStatus("Paused"); return;
-    }
-    if (!wm.ac) {
-      wm.ac = new ACx(); wm.out = wm.ac.createGain();
-      wm.out.gain.value = (S.wmVol / 100) * .5; wm.out.connect(wm.ac.destination);
-    }
-    wm.ac.resume(); wm.on = true;
-    wmChord(); wm.timer = setInterval(wmChord, Math.max(3, S.wmEvery) * 1000);
-    $("mgo").textContent = "Stop";
-  }
-
-  /* ---------- listening labs ---------- */
-  var labsData = { plays: [], at: 0, loading: false, err: "" }, labsT = null;
-  function lfm(params) {
-    var q = Object.keys(params).map(function (k) { return k + "=" + encodeURIComponent(params[k]); }).join("&");
-    return fetch("https://ws.audioscrobbler.com/2.0/?format=json&api_key=" + encodeURIComponent(S.key) + "&" + q, { cache: "no-store" })
-      .then(function (r) { return r.json(); });
-  }
-  async function labsRefresh() {
-    if (OVERLAY) return;
-    if (!S.user || !S.key) { labsData.err = "Add your Last.fm username and key."; labsRender(); return; }
-    if (labsData.loading) return;
-    if (labsData.plays.length && Date.now() - labsData.at < 300000) { labsRender(); return; }
-    labsData.loading = true;
-    try {
-      var pages = Math.max(1, Math.min(10, Math.round(S.histPages))), all = [], page;
-      for (page = 1; page <= pages; page++) {
-        var d = await lfm({ method: "user.getrecenttracks", user: S.user, limit: 200, page: page });
-        if (d.error) throw new Error(d.message || "Last.fm error");
-        var tr = d.recenttracks && d.recenttracks.track;
-        tr = Array.isArray(tr) ? tr : (tr ? [tr] : []);
-        if (!tr.length) break;
-        all = all.concat(tr);
-      }
-      var cutoff = Date.now() - Math.max(1, S.histDays) * 864e5;
-      labsData.plays = all.map(function (x) {
-        return { a: (x.artist && (x.artist["#text"] || x.artist.name)) || "", n: x.name, at: x.date ? +x.date.uts * 1000 : Date.now(), np: !!(x["@attr"] && x["@attr"].nowplaying === "true") };
-      }).filter(function (p) { return !p.np && p.at >= cutoff; });
-      labsData.at = Date.now(); labsData.err = "";
-      radioTune();
-      if (S.wOtd) otdLoad();
-    } catch (e) { labsData.err = e.message || "Last.fm did not answer."; }
-    labsData.loading = false;
-    labsRender();
-  }
-  function drawLc() {
-    var c = $("lcv"); if (!c) return;
-    var g = c.getContext("2d"), W = c.width, H = c.height, C = W / 2, R = C - 34, i;
-    g.clearRect(0, 0, W, H);
-    var bins = [], max = 1;
-    for (i = 0; i < 24; i++) bins.push(0);
-    labsData.plays.forEach(function (p) { bins[new Date(p.at).getHours()]++; });
-    bins.forEach(function (v) { if (v > max) max = v; });
-    var accent = accentColor();
-    if (S.lcStyle === "bars") {
-      var bw = (W - 30) / 24;
-      bins.forEach(function (v, hh) {
-        var bh = (v / max) * (H - 44);
-        g.globalAlpha = v ? .35 + .65 * (v / max) : 1;
-        g.fillStyle = v ? accent : "rgba(255,255,255,.13)";
-        g.fillRect(15 + hh * bw + 1, H - 18 - bh, Math.max(2, bw - 3), Math.max(2, bh));
-      });
-      g.globalAlpha = 1;
-    } else {
-      g.lineCap = "round";
-      bins.forEach(function (v, hh) {
-        var a = hh / 24 * Math.PI * 2 - Math.PI / 2, rr = 32 + (v / max) * R;
-        g.globalAlpha = v ? .4 + .6 * (v / max) : 1;
-        g.strokeStyle = v ? accent : "rgba(255,255,255,.14)";
-        g.lineWidth = Math.max(2, (Math.PI * 2 * R) / 24 * .48);
-        g.beginPath(); g.moveTo(C + Math.cos(a) * 30, C + Math.sin(a) * 30); g.lineTo(C + Math.cos(a) * rr, C + Math.sin(a) * rr); g.stroke();
-      });
-      g.globalAlpha = 1;
-    }
-    if (S.lcLabels) {
-      g.fillStyle = "rgba(255,255,255,.45)"; g.font = "10px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
-      [0, 6, 12, 18].forEach(function (hh) {
-        var a = hh / 24 * Math.PI * 2 - Math.PI / 2;
-        g.fillText((hh < 10 ? "0" : "") + hh, C + Math.cos(a) * (R + 17), C + Math.sin(a) * (R + 17));
-      });
-      g.textAlign = "left"; g.textBaseline = "alphabetic";
-    }
-  }
-  function drawGr() {
-    var c = $("gcv"); if (!c) return;
-    var g = c.getContext("2d"), W = c.width, H = c.height;
-    g.clearRect(0, 0, W, H);
-    var weeks = Math.max(4, Math.min(60, Math.round(S.grWeeks))), cell = Math.min(13, (W - 30) / weeks);
-    var counts = {};
-    labsData.plays.forEach(function (p) { var k = new Date(p.at).toDateString(); counts[k] = (counts[k] || 0) + 1; });
-    var max = 1; Object.keys(counts).forEach(function (k) { if (counts[k] > max) max = counts[k]; });
-    var today = new Date(); today.setHours(0, 0, 0, 0);
-    var start = new Date(today); start.setDate(start.getDate() - ((today.getDay() + 6) % 7) - (weeks - 1) * 7);
-    var accent = accentColor();
-    for (var wi = 0; wi < weeks; wi++) {
-      for (var di = 0; di < 7; di++) {
-        var day = new Date(start); day.setDate(start.getDate() + wi * 7 + di);
-        if (day > today) continue;
-        var v = counts[day.toDateString()] || 0, x = 15 + wi * cell, y = 16 + di * cell;
-        g.globalAlpha = v ? .25 + .75 * (v / max) : .09;
-        g.fillStyle = v ? accent : "#ffffff";
-        g.beginPath();
-        var r = S.grShape === "circle" ? (cell - 2) / 2 : S.grShape === "rounded" ? 3 : 0;
-        if (r && g.roundRect) g.roundRect(x, y, cell - 2, cell - 2, r); else g.rect(x, y, cell - 2, cell - 2);
-        g.fill();
-      }
-    }
-    g.globalAlpha = 1;
-  }
-  var otd = { hits: [], at: 0, loading: false, err: "", years: "" };
-  async function otdLoad() {
-    if (OVERLAY || !S.user || !S.key) return;
-    if (otd.loading) return;
-    if (otd.at && otd.years === String(S.otdYears) && Date.now() - otd.at < 3600000) return;
-    otd.loading = true; otd.err = "";
-    var now = new Date(), out = [], years = [];
-    String(S.otdYears || "").split(",").forEach(function (y) { y = parseInt(y, 10); if (y > 0) years.push(y); });
-    try {
-      for (var i = 0; i < years.length; i++) {
-        var day = new Date(now.getFullYear() - years[i], now.getMonth(), now.getDate());
-        if (day.getDate() !== now.getDate()) continue;
-        var from = Math.floor(day.getTime() / 1000);
-        var r = await lfm({ method: "user.getRecentTracks", user: S.user, from: from, to: from + 86399, limit: 20 });
-        if (r.error) throw new Error(r.message || "Last.fm error");
-        var tr = r.recenttracks && r.recenttracks.track;
-        tr = Array.isArray(tr) ? tr : (tr ? [tr] : []);
-        var seen = {}, kept = [];
-        tr.forEach(function (x) {
-          var a = (x.artist && (x.artist["#text"] || x.artist.name)) || "", n = x.name, k = a + "|" + n;
-          if (!a || seen[k]) return;
-          seen[k] = 1; kept.push(a + " \u2013 " + n);
-        });
-        if (kept.length) out.push({ y: day.getFullYear(), list: kept });
-      }
-      otd.hits = out; otd.at = Date.now(); otd.years = String(S.otdYears);
-    } catch (e) { otd.err = e.message || "Could not load past plays."; }
-    otd.loading = false;
-    renderOtd();
-  }
-  function renderOtd() {
-    var el = $("otd"); if (!el) return;
-    if (otd.hits.length) {
-      el.innerHTML = otd.hits.map(function (h) {
-        var picks = h.list.slice(0, Math.max(1, S.otdCount));
-        return "<b>" + h.y + "</b> " + picks.join(" \u00b7 ");
-      }).join("<br>");
-      return;
-    }
-    if (otd.loading) { el.textContent = "Looking back\u2026"; return; }
-    if (otd.err) { el.textContent = otd.err; return; }
-    if (otd.at) { el.textContent = "Nothing played on this date in the years you follow."; return; }
-    el.textContent = S.user && S.key ? "Looking back\u2026" : "Add your Last.fm username and key.";
-  }
-  function labsRender() {
-    drawLc(); drawGr(); renderOtd();
-    var lc = $("lcn"), gr = $("gcn"), plays = labsData.plays;
-    if (lc) {
-      if (!plays.length) lc.textContent = labsData.err || "No history loaded yet.";
-      else {
-        var bins = [], maxH = 0, best = 0, i;
-        for (i = 0; i < 24; i++) bins.push(0);
-        plays.forEach(function (p) { bins[new Date(p.at).getHours()]++; });
-        bins.forEach(function (v, hh) { if (v > maxH) { maxH = v; best = hh; } });
-        lc.textContent = plays.length + " plays \u00b7 peak " + (best < 10 ? "0" : "") + best + ":00 \u00b7 " + S.histDays + " day window";
-      }
-    }
-    if (gr) {
-      if (!plays.length) gr.textContent = labsData.err || "No history loaded yet.";
-      else {
-        var set = {}, streak = 0, day = new Date();
-        plays.forEach(function (p) { set[new Date(p.at).toDateString()] = 1; });
-        day.setHours(0, 0, 0, 0);
-        while (set[day.toDateString()]) { streak++; day.setDate(day.getDate() - 1); }
-        gr.textContent = plays.length + " plays \u00b7 " + Object.keys(set).length + " active days \u00b7 " + streak + " day streak";
-      }
-    }
-  }
-  async function tasteMatch() {
-    var el = $("tres"), who = String(($("tu") && $("tu").value) || S.tmUser || "").trim();
-    if (!who) { if (el) el.textContent = "Add a friend's Last.fm name."; return; }
-    S.tmUser = who; save();
-    if (!S.user || !S.key) { if (el) el.textContent = "Add your own Last.fm username and key first."; return; }
-    if (el) el.textContent = "Comparing\u2026";
-    try {
-      var mine = await lfm({ method: "user.getTopArtists", user: S.user, period: S.tmPeriod, limit: S.tmCount });
-      var theirs = await lfm({ method: "user.getTopArtists", user: who, period: S.tmPeriod, limit: S.tmCount });
-      if (theirs.error === 6) throw new Error("No such Last.fm user: " + who);
-      if (theirs.error) throw new Error(theirs.message || "Last.fm error");
-      var m = (mine.topartists && mine.topartists.artist) || [], t = (theirs.topartists && theirs.topartists.artist) || [];
-      var A = {}, shared = [];
-      m.forEach(function (a) { A[a.name.toLowerCase()] = 1; });
-      t.forEach(function (a) { if (A[a.name.toLowerCase()]) shared.push(a.name); });
-      var pct = m.length ? Math.round(shared.length / m.length * 100) : 0;
-      if (el) el.innerHTML = "<b>" + pct + "%</b> overlap \u00b7 " + shared.length + " of " + m.length + " artists<br>" + (shared.slice(0, 6).join(", ") || "nothing in common yet");
-    } catch (e) { if (el) el.textContent = e.message || "Could not compare."; }
-  }
-
-  /* ---------- artist galaxy ---------- */
-  var gx = { on: false, nodes: [], edges: [], rot: 0, tilt: .32, zoom: 1, drag: null, at: 0, loading: false, err: "", period: "" };
-  function galaxyBuild(artists) {
-    var n = artists.length, mx = 1;
-    gx.nodes = artists.map(function (a, i) {
-      var y = n === 1 ? 0 : 1 - (i + .5) / n * 2, r = Math.sqrt(Math.max(0, 1 - y * y)), th = i * 2.399963;
-      return { name: a.name, count: +a.playcount || 1, x: Math.cos(th) * r, y: y, z: Math.sin(th) * r };
-    });
-    gx.nodes.forEach(function (a) { if (a.count > mx) mx = a.count; });
-    gx.nodes.forEach(function (a) { a.s = .35 + .65 * Math.sqrt(a.count / mx); });
-    gx.edges = [];
-    var seen = {};
-    gx.nodes.forEach(function (a, i) {
-      gx.nodes.map(function (b, j) { var dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z; return { j: j, d: dx * dx + dy * dy + dz * dz }; })
-        .filter(function (o) { return o.j !== i; }).sort(function (p, q) { return p.d - q.d; }).slice(0, 2)
-        .forEach(function (o) {
-          var k = Math.min(i, o.j) + ":" + Math.max(i, o.j);
-          if (!seen[k]) { seen[k] = 1; gx.edges.push([i, o.j]); }
-        });
-    });
-  }
-  async function galaxyLoad() {
-    if (gx.loading) return;
-    if (!S.user || !S.key) { gx.err = "Add your Last.fm username and key in settings."; $("gxl").textContent = gx.err; return; }
-    if (gx.nodes.length && gx.period === S.gxPeriod && Date.now() - gx.at < 600000) return;
-    gx.loading = true; gx.err = "";
-    try {
-      var d = await lfm({ method: "user.getTopArtists", user: S.user, period: S.gxPeriod, limit: S.gxCount });
-      if (d.error) throw new Error(d.message || "Last.fm error");
-      var list = (d.topartists && d.topartists.artist) || [];
-      galaxyBuild(list);
-      gx.at = Date.now(); gx.period = S.gxPeriod;
-      $("gxl").textContent = list.length + " artists \u00b7 " + (PERIODS[S.gxPeriod] || "") + " \u00b7 drag to spin, scroll to zoom";
-    } catch (e) { gx.err = e.message || "Could not load your artists."; $("gxl").textContent = gx.err; }
-    gx.loading = false;
-  }
-  function drawGalaxy() {
-    var c = $("gxc"); if (!c) return;
-    var w = c.clientWidth || window.innerWidth, h = c.clientHeight || window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    var g = c.getContext("2d");
-    g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    g.fillStyle = "#08090e"; g.fillRect(0, 0, w, h);
-    if (!gx.nodes.length) {
-      g.fillStyle = "rgba(237,237,237,.6)"; g.font = "14px 'DM Sans', system-ui, sans-serif"; g.textAlign = "center";
-      g.fillText(gx.err || (gx.loading ? "Loading your artists\u2026" : "No artists yet"), w / 2, h / 2);
-      g.textAlign = "left"; return;
-    }
-    gx.rot += (S.gxSpin || 0) * .00035;
-    var R = Math.min(w, h) * .38 * (S.gxSize / 100) * (gx.zoom || 1);
-    var cr = Math.cos(gx.rot), sr = Math.sin(gx.rot), ct = Math.cos(gx.tilt), st = Math.sin(gx.tilt);
-    var pts = gx.nodes.map(function (n, i) {
-      var x = n.x, y = n.y * ct - n.z * st, z = n.y * st + n.z * ct;
-      var X = x * cr - z * sr, Z = x * sr + z * cr;
-      return { i: i, n: n, X: w / 2 + X * R, Y: h / 2 + y * R, d: (Z + 1) / 2 };
-    });
-    pts.sort(function (a, b) { return a.d - b.d; });
-    var at = {};
-    pts.forEach(function (p) { at[p.i] = p; });
-    var accent = accentColor();
-    if (S.gxEdges) {
-      g.strokeStyle = accent; g.lineWidth = 1;
-      gx.edges.forEach(function (e) {
-        var a = at[e[0]], b = at[e[1]]; if (!a || !b) return;
-        g.globalAlpha = .03 + Math.min(a.d, b.d) * .2;
-        g.beginPath(); g.moveTo(a.X, a.Y); g.lineTo(b.X, b.Y); g.stroke();
-      });
-    }
-    g.textAlign = "center"; g.textBaseline = "middle";
-    pts.forEach(function (p) {
-      var rad = 2 + p.n.s * 9 * (.5 + p.d * .9);
-      g.globalAlpha = .25 + p.d * .75;
-      g.fillStyle = "hsl(" + hueOf(p.n.name) + ",72%,66%)";
-      g.beginPath(); g.arc(p.X, p.Y, rad, 0, 6.3); g.fill();
-      g.globalAlpha = .08 + p.d * .2;
-      g.beginPath(); g.arc(p.X, p.Y, rad * 2.8, 0, 6.3); g.fill();
-      if (S.gxLabels && p.d > .45) {
-        g.globalAlpha = Math.min(1, p.d); g.fillStyle = "#ededed";
-        g.font = "11px 'DM Sans', system-ui, sans-serif";
-        var nm = p.n.name;
-        g.fillText(nm.length > 24 ? nm.slice(0, 23) + "\u2026" : nm, p.X, p.Y - rad - 11);
-      }
-    });
-    g.globalAlpha = 1; g.textAlign = "left"; g.textBaseline = "alphabetic";
-  }
-  function galaxyOpen() {
-    $("glx").classList.add("on"); gx.on = true; gx.zoom = Math.max(.5, S.gxSize / 100);
-    if (!gx.nodes.length && !gx.loading) $("gxl").textContent = "Loading your artists\u2026";
-    galaxyLoad();
-  }
-  function galaxyClose() { gx.on = false; gx.drag = null; $("glx").classList.remove("on"); }
-
-  /* ---------- live sky ---------- */
-  var sky = { stars: null }, lastSky = 0, wx = null, geo = null;
-  function mixRGB(a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k]; }
-  function rgbs(c, a) { return "rgba(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + "," + (a == null ? 1 : a) + ")"; }
-  function drawSky(t) {
-    var c = $("sky"); if (!c) return;
-    var w = window.innerWidth, h = window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    var g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
-    var d = new Date(), hr = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
-    var day = Math.max(0, Math.sin((hr - 6) / 12 * Math.PI));
-    var dusk = Math.min(1, Math.max(0, 1 - Math.abs(hr - 6.4) / 1.8) + Math.max(0, 1 - Math.abs(hr - 17.6) / 1.8));
-    var over = wx ? Math.min(1, (wx.cloud || 0) / 100) : .25;
-    var night = [8, 11, 26], warm = [92, 56, 62], noon = [104, 158, 214];
-    var base = mixRGB(night, warm, dusk);
-    base = mixRGB(base, noon, day * .9);
-    base = mixRGB(base, [96, 100, 108], over * .55);
-    var top = mixRGB(base, [0, 0, 0], .28), bot = mixRGB(base, [255, 255, 255], .16);
-    var grd = g.createLinearGradient(0, 0, 0, h);
-    grd.addColorStop(0, rgbs(top)); grd.addColorStop(.68, rgbs(base)); grd.addColorStop(1, rgbs(bot));
-    g.fillStyle = grd; g.fillRect(0, 0, w, h);
-    if (S.skyStars) {
-      if (!sky.stars) {
-        sky.stars = [];
-        for (var i = 0; i < 160; i++) sky.stars.push({ x: Math.random(), y: Math.random() * .8, r: Math.random() * 1.3 + .3, p: Math.random() * 6.28 });
-      }
-      var so = Math.max(0, .95 - day * 1.6) * (1 - over * .7);
-      if (so > .02) {
-        g.fillStyle = "#fff";
-        sky.stars.forEach(function (s) {
-          g.globalAlpha = so * (.35 + .65 * Math.abs(Math.sin(t / 2600 + s.p)));
-          g.fillRect(s.x * w, s.y * h, s.r, s.r);
-        });
-        g.globalAlpha = 1;
-      }
-    }
-    if (S.skySun) {
-      if (hr > 5.5 && hr < 18.5) {
-        var sx = w * ((hr - 6) / 12), sy = h * .8 - Math.sin((hr - 6) / 12 * Math.PI) * h * .62;
-        var sg = g.createRadialGradient(sx, sy, 0, sx, sy, 130);
-        sg.addColorStop(0, "rgba(255,246,214,.95)"); sg.addColorStop(.35, "rgba(255,226,160,.32)"); sg.addColorStop(1, "rgba(255,210,120,0)");
-        g.fillStyle = sg; g.beginPath(); g.arc(sx, sy, 130, 0, 6.3); g.fill();
-        g.fillStyle = "rgba(255,252,236,.95)"; g.beginPath(); g.arc(sx, sy, 21, 0, 6.3); g.fill();
-      } else {
-        var mh = hr < 6 ? hr + 24 : hr, mp = (mh - 18) / 12;
-        var mxp = w * mp, myp = h * .8 - Math.sin(mp * Math.PI) * h * .62;
-        g.fillStyle = "rgba(240,244,255,.92)"; g.beginPath(); g.arc(mxp, myp, 15, 0, 6.3); g.fill();
-        g.fillStyle = rgbs(night, .75); g.beginPath(); g.arc(mxp + 7, myp - 5, 14, 0, 6.3); g.fill();
-      }
-    }
-    if (S.skyClouds && wx && wx.cloud > 10) {
-      var cn = Math.max(1, Math.round(over * 9));
-      g.fillStyle = "rgba(255,255,255," + (.1 + over * .28) + ")";
-      for (var j = 0; j < cn; j++) {
-        var cw = 150 + (j * 97 % 220), ch = 36 + (j * 31 % 46);
-        var px = (((j * .17 + t / 120000 * (1 + j * .1)) % 1.3) - .15) * w;
-        var py = h * (.1 + (j * 37 % 34) / 100);
-        g.beginPath(); g.ellipse(px, py, cw, ch, 0, 0, 6.3); g.fill();
-        g.beginPath(); g.ellipse(px + cw * .45, py + ch * .35, cw * .55, ch * .75, 0, 0, 6.3); g.fill();
-      }
-    }
-    var code = wx ? wx.code : 0;
-    if (code >= 51 && code <= 99 && !(code >= 71 && code <= 77)) {
-      g.strokeStyle = "rgba(200,220,255,.35)"; g.lineWidth = 1;
-      for (var r = 0; r < 90; r++) {
-        var rx = (r * 53 + t / 6) % w, ry = (r * 79 + t / 3) % h;
-        g.beginPath(); g.moveTo(rx, ry); g.lineTo(rx - 3, ry + 12); g.stroke();
-      }
-    } else if (code >= 71 && code <= 77) {
-      g.fillStyle = "rgba(255,255,255,.8)";
-      for (var s2 = 0; s2 < 90; s2++) {
-        var sxx = (s2 * 71 + Math.sin(t / 2000 + s2) * 24) % w, syy = (s2 * 43 + t / 18) % h;
-        g.beginPath(); g.arc(sxx, syy, 1.8, 0, 6.3); g.fill();
-      }
-    }
-    g.globalAlpha = 1;
-  }
-
-  /* ---------- wiring ---------- */
-  renderSnd();
-  if ($("tu")) $("tu").value = S.tmUser || "";
-  if ($("mst")) $("mst").textContent = S.wmTemp ? "Key follows the temperature" : "Steady chords";
-  $("w-snd").addEventListener("click", function (e) {
-    var n = e.target && e.target.dataset ? e.target.dataset.snd : ""; if (!n) return;
-    var row = SND.filter(function (s) { return s[0] === n; })[0]; if (!row) return;
-    S[row[1]] = !S[row[1]];
-    if (S[row[1]]) S.sndOn = true;
-    save(); renderSnd(); syncSound();
-  });
-  $("rgo").addEventListener("click", radioPlay);
-  $("mgo").addEventListener("click", wmToggle);
-  $("tgo").addEventListener("click", tasteMatch);
-  $("tu").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); tasteMatch(); } });
-  $("gxo").addEventListener("click", galaxyOpen);
-  $("gxx").addEventListener("click", galaxyClose);
-  var gc = $("gxc");
-  gc.addEventListener("pointerdown", function (e) {
-    gx.drag = { x: e.clientX, y: e.clientY, r: gx.rot, t: gx.tilt };
-    if (gc.setPointerCapture) gc.setPointerCapture(e.pointerId);
-  });
-  gc.addEventListener("pointermove", function (e) {
-    if (!gx.drag) return;
-    gx.rot = gx.drag.r + (e.clientX - gx.drag.x) * .008;
-    gx.tilt = clamp(gx.drag.t + (e.clientY - gx.drag.y) * .006, -1.3, 1.3);
-  });
-  gc.addEventListener("pointerup", function () { gx.drag = null; });
-  gc.addEventListener("pointercancel", function () { gx.drag = null; });
-  gc.addEventListener("wheel", function (e) { e.preventDefault(); gx.zoom = clamp((gx.zoom || 1) * (e.deltaY > 0 ? .92 : 1.08), .4, 3); }, { passive: false });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && gx.on) { galaxyClose(); return; }
-    var t = e.target.tagName;
-    if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
-    var h = hkStr(e); if (!h) return;
-    if (h === S.hkGalaxy) { e.preventDefault(); gx.on ? galaxyClose() : galaxyOpen(); }
-    else if (h === S.hkNews) { e.preventDefault(); S.news = !S.news; save(); apply(); toast(S.news ? "Newspaper mode on" : "Newspaper mode off"); }
-    else if (h === S.hkSound) { e.preventDefault(); S.sndOn = !S.sndOn; save(); apply(); renderSnd(); syncSound(); toast(S.sndOn ? "Soundscapes on" : "Soundscapes off"); }
-  }, true);
-  document.addEventListener("contextmenu", function (e) {
-    if (!S.rightClick) return;
-    var t = e.target.tagName;
-    if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT" || t === "CANVAS") return;
-    if (panel.classList.contains("open")) return;
-    e.preventDefault(); openPanel();
-  });
-  document.addEventListener("click", function () {
-    if (snd.ac && snd.ac.state === "suspended") snd.ac.resume();
-    if (radio.ac && radio.ac.state === "suspended") radio.ac.resume();
-    if (wm.ac && wm.ac.state === "suspended") wm.ac.resume();
-  }, true);
-  setInterval(function () {
-    if (radio.out) radio.out.gain.value = S.radioVol / 100 * .5;
-    if (wm.out) wm.out.gain.value = S.wmVol / 100 * .5;
-    if (snd.master && snd.ac) snd.master.gain.setTargetAtTime(S.sndOn ? S.sndMaster / 100 * .5 : 0, snd.ac.currentTime, .3);
-  }, 600);
-  radioTune();
-  if (S.wOtd) otdLoad();
-
-  function toast(msg) {
-    var t = document.createElement("div");
-    t.textContent = msg;
-    t.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;padding:8px 14px;border-radius:8px;background:var(--panel);color:var(--ink);border:1px solid var(--line);font-size:.85rem";
-    document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, 2500);
-  }
   function save() { if (OVERLAY) return; try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
   var QP = new URLSearchParams(location.search), OVERLAY = QP.get("overlay") === "1";
   if (OVERLAY) {
     var qv = function (k, d) { return QP.has(k) ? QP.get(k) : d; };
     Object.assign(S, { user: qv("user", S.user), key: qv("key", S.key), demo: false, showSearch: false, showClock: false, showLinks: false, showNotes: false, showRecent: false,
-      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, rightClick: false, news: false, bgMode: "art", notify: false,
+      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, rightClick: false, showGear: false, news: false, bgMode: "art", notify: false,
       faviconArt: false, sndOn: false, ccOn: false, showStatus: qv("status", "1") === "1", showVinyl: qv("vinyl", "1") === "1", showCover: qv("cover", "1") === "1",
       showText: qv("text", "1") === "1", showViz: qv("viz", "0") === "1", ovScale: +qv("scale", 100), ovAlign: qv("align", "left") });
     ["wPomo", "wTodo", "wCd", "wWc", "wYear", "wCal", "wQuote", "wLc", "wGr", "wOtd", "wTm", "wSnd", "wRadio", "wWm"].forEach(function (k) { S[k] = false; });
@@ -1203,7 +510,7 @@
     widgets(); calendar(); renderTodos(); if (!pomo.run) pomoReset();
     [["lc", "wLc"], ["gr", "wGr"], ["otd", "wOtd"], ["tm", "wTm"], ["snd", "wSnd"], ["radio", "wRadio"], ["wm", "wWm"]].forEach(function (p) { $("w-" + p[0]).style.display = S[p[1]] ? "" : "none"; });
     b.toggle("sky-on", S.bgMode === "sky" && !S.news); b.toggle("solid", S.bgMode !== "art" && S.bgMode !== "sky");
-    b.toggle("news", S.news); b.toggle("ng", S.newsGray); b.toggle("cc-on", S.ccOn);
+    b.toggle("news", S.news); b.toggle("ng", S.newsGray); b.toggle("gear-on", S.showGear); b.toggle("cc-on", S.ccOn);
     b.toggle("overlay", OVERLAY); b.toggle("ov-center", S.ovAlign === "center"); r.setProperty("--ovs", S.ovScale / 100);
     r.setProperty("--bg", S.news ? S.newsPaper : "#121212"); r.setProperty("--dim", S.news ? "color-mix(in srgb," + S.newsInk + " 60%," + S.newsPaper + ")" : "#8c8c8c");
     if (S.news) { r.setProperty("--ink", S.newsInk); r.setProperty("--font", FONTS.serif); }
@@ -1298,7 +605,7 @@
     lcLabels: "Hour labels", grLabels: "Totals and streak", gxLabels: "Artist names", gxEdges: "Similarity links", skySun: "Sun and moon", skyStars: "Stars", skyClouds: "Clouds",
     news: "Newspaper mode", newsGray: "Black-and-white cover", sndOn: "Soundscapes on", wmTemp: "Temperature shifts the key", ccOn: "Commit vinyl grooves",
     shareApply: "Apply setups from share links", ovVinyl: "Show vinyl", ovCover: "Show cover", ovText: "Show text", ovViz: "Show visualizer",
-    rightClick: "Right-click opens settings" });
+    rightClick: "Right-click opens settings", showGear: "Show a settings button" });
   Object.assign(sliders, { histDays: ["Days of history", 7, 365, 1, ""], histPages: ["Pages to load (200 plays each)", 1, 10, 1, ""], grWeeks: ["Weeks shown", 8, 52, 1, ""],
     otdCount: ["Songs per year", 1, 6, 1, ""], tmCount: ["Artists compared", 10, 100, 5, ""], gxCount: ["Artists", 8, 40, 1, ""], gxSpin: ["Auto-rotate", 0, 60, 1, " °/s"], gxSize: ["Size", 50, 150, 5, "%"],
     skyWarp: ["Time-lapse (1 = real time)", 1, 3600, 1, "×"], sndMaster: ["Master volume", 0, 100, 1, "%"], radioBpm: ["Tempo", 40, 200, 1, " bpm"], radioRoot: ["Root note (MIDI)", 36, 72, 1, ""],
@@ -1386,30 +693,13 @@
   }
   function col(k, l) { return '<div class="row"><span>' + l + '</span><input type="color" data-k="' + k + '" value="' + esc(S[k]) + '"></div>'; }
   function area(k, label) { return '<div class="row col"><span>' + label + '</span><textarea data-k="' + k + '" spellcheck="false">' + esc(S[k]) + '</textarea></div>'; }
-  var KEYNAMES = { Comma: ",", Period: ".", Slash: "/", Semicolon: ";", Quote: "'", BracketLeft: "[", BracketRight: "]", Backslash: "\\", Minus: "-", Equal: "=", Backquote: "`", Space: "space" };
-  /* Builds a shortcut string such as "ctrl+shift+," from a key event. Needs Ctrl, Alt or Meta (or an F-key), so plain typing never matches. */
-  function hkStr(e) {
-    var k = null;
-    if (/^Key[A-Z]$/.test(e.code)) k = e.code.slice(3).toLowerCase();
-    else if (/^Digit[0-9]$/.test(e.code)) k = e.code.slice(5);
-    else if (KEYNAMES[e.code]) k = KEYNAMES[e.code];
-    else if (/^F\d{1,2}$/.test(e.key)) k = e.key.toLowerCase();
-    else if (/^(Arrow(Up|Down|Left|Right)|Enter|Tab|Home|End|PageUp|PageDown|Insert)$/.test(e.key)) k = e.key.toLowerCase().replace("arrow", "");
-    if (!k) return null;
-    if (!(e.ctrlKey || e.altKey || e.metaKey) && !/^f\d/.test(k)) return null;
-    return (e.ctrlKey ? "ctrl+" : "") + (e.altKey ? "alt+" : "") + (e.shiftKey ? "shift+" : "") + (e.metaKey ? "meta+" : "") + k;
-  }
-  function fmtKey(s) {
-    if (!s) return "(none)";
-    return s.split("+").map(function (p) { return p.length === 1 ? p.toUpperCase() : p.charAt(0).toUpperCase() + p.slice(1); }).join("+");
-  }
   function hk(k, label) { return '<div class="row col"><span>' + label + '</span><input type="text" readonly data-hk="' + k + '" value="' + esc(S[k] || "") + '" placeholder="Click, then press keys"></div>'; }
   function grp(t, h) { return '<details class="grp"><summary>' + t + '</summary>' + h + '</details>'; }
   function themeOpts() { var o = { "": "Choose…" }; Object.keys(THEMES).forEach(function (k) { o[k] = k; }); return o; }
   function labs() {
     var T = function (a) { return a.map(toggleRow).join(""); }, L = function (a) { return a.map(sliderRow).join(""); };
     var vc = Object.assign({ "": "Choose…" }, Object.keys(COMM.viz).reduce(function (o, k) { o[k] = k; return o; }, {}));
-    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["rightClick"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
+    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["rightClick", "showGear"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
       grp("Listening clock and history", T(["wLc", "lcLabels"]) + sel("lcStyle", "Style", { radial: "Radial", bars: "Bars" }) + L(["histDays", "histPages"])) +
       grp("Listening calendar", T(["wGr", "grLabels"]) + sel("grShape", "Cells", { square: "Square", rounded: "Rounded", circle: "Circles" }) + L(["grWeeks"])) +
       grp("On this day", T(["wOtd"]) + txt("otdYears", "Years ago (comma separated)") + L(["otdCount"])) +
@@ -1492,18 +782,17 @@
       save(); apply(); build();
     }
   });
-  function openPanel() { panel.classList.add("open"); build(); }
+  function openPanel() { build(); panel.classList.add("open"); }
   function closePanel() { panel.classList.remove("open"); }
-  function togglePanel() { panel.classList.contains("open") ? closePanel() : openPanel(); }
+  $("gear").onclick = function () { panel.classList.contains("open") ? closePanel() : openPanel(); };
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && panel.classList.contains("open")) { closePanel(); return; }
-    var h = hkStr(e);
-    if (h && h === S.hkSettings) { e.preventDefault(); togglePanel(); return; }
+    if (e.key === "Escape") closePanel();
     var t = e.target.tagName;
     if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
     if (!S.hotkeys || S.typeToSearch) return;
     if (e.key === "/") { e.preventDefault(); $("q").focus(); }
     else if (e.key === "f" || e.key === "F") toggleFs();
+    else if (e.key === ",") { panel.classList.contains("open") ? closePanel() : openPanel(); }
   });
 
   /* ---------- now playing ---------- */
@@ -1931,6 +1220,318 @@
   }, { passive: false });
   ["mousemove", "keydown", "touchstart"].forEach(function (ev) { document.addEventListener(ev, function () { lastMove = Date.now(); }); });
 
+  /* ---------- labs: history, sky, galaxy, sound, generative music, commit vinyl ---------- */
+  var PERIODS = { overall: "All time", "12month": "12 months", "6month": "6 months", "3month": "3 months", "1month": "1 month", "7day": "7 days" };
+  var COMM = { viz: {} }, wx = null, geo = null, labsT = null, lastSky = 0, skyT0 = Date.now(), ACX = null, snd = {}, gen = null, NB = {};
+  var radio = { on: false, t: null, notes: [], i: 0 }, wm = { on: false, t: null }, cv = { rings: [] };
+  var gx = { on: false, nodes: [], edges: [], yaw: 0, pitch: .35, drag: null, last: 0 }, hist = { at: 0, ts: [], d: 0, p: 0 }, otdKey = "";
+  var SCALES = { pentatonic: [0, 2, 4, 7, 9], major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], blues: [0, 3, 5, 6, 7, 10] };
+  function toast(m) { var t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove("on"); }, 3500); }
+  function fmtKey(k) { return (k || "").split("+").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(" + "); }
+  function hkStr(e) {
+    var k = e.key; if (k === "Control" || k === "Shift" || k === "Alt" || k === "Meta") return "";
+    return (e.ctrlKey ? "ctrl+" : "") + (e.altKey ? "alt+" : "") + (e.shiftKey ? "shift+" : "") + (e.metaKey ? "meta+" : "") + (k === " " ? "space" : k.toLowerCase());
+  }
+  function toggleSettings() { if (panel.classList.contains("open")) closePanel(); else openPanel(); }
+  var HK = { hkSettings: toggleSettings, hkGalaxy: function () { toggleGalaxy(); }, hkNews: function () { S.news = !S.news; save(); apply(); }, hkSound: function () { S.sndOn = !S.sndOn; save(); apply(); } };
+  document.addEventListener("keydown", function (e) {
+    if (e.target.dataset && e.target.dataset.hk) return;
+    if (e.key === "Escape" && gx.on) { toggleGalaxy(); return; }
+    var h = hkStr(e); if (!h) return;
+    for (var k in HK) if (S[k] && S[k] === h) { e.preventDefault(); e.stopPropagation(); HK[k](); return; }
+  }, true);
+  document.addEventListener("contextmenu", function (e) {
+    var t = e.target.tagName;
+    if (!S.rightClick || OVERLAY || t === "INPUT" || t === "TEXTAREA" || t === "A" || panel.contains(e.target)) return;
+    e.preventDefault(); toggleSettings();
+  });
+  [["themes.json", function (j) { Object.assign(THEMES, j); }], ["visualizers.json", function (j) { COMM.viz = j; }]].forEach(function (p) {
+    fetch(p[0]).then(function (r) { return r.ok ? r.json() : {}; }).then(p[1]).catch(function () {});
+  });
+  function lfm(method, p) {
+    var q = Object.assign({ method: method, format: "json", api_key: S.key, user: S.user }, p), u = "https://ws.audioscrobbler.com/2.0/?" + new URLSearchParams(q);
+    return fetch(u).then(function (r) { return r.json(); });
+  }
+  function noData() { return S.demo || !S.key || !S.user; }
+  async function loadHist() {
+    if (hist.ts.length && hist.d === S.histDays && hist.p === S.histPages && Date.now() - hist.at < 6e5) return hist.ts;
+    var out = [], i;
+    if (noData()) {
+      var d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      for (i = 0; i < 500; i++) { var h = Math.floor(18 + (Math.random() + Math.random() - 1) * 6 + 24) % 24; out.push(d0 / 1000 - Math.floor(Math.random() * S.histDays) * 86400 + h * 3600 + Math.random() * 3600); }
+    } else {
+      var from = Math.floor(Date.now() / 1000 - S.histDays * 86400), tp = 1;
+      for (var pg = 1; pg <= Math.min(S.histPages, tp); pg++) {
+        var d = await lfm("user.getrecenttracks", { limit: 200, page: pg, from: from }), rt = d.recenttracks; if (!rt) throw new Error(d.message || "no data");
+        tp = +rt["@attr"].totalPages || 1; var tr = Array.isArray(rt.track) ? rt.track : rt.track ? [rt.track] : [];
+        tr.forEach(function (x) { if (x.date) out.push(+x.date.uts); });
+      }
+    }
+    hist = { at: Date.now(), ts: out, d: S.histDays, p: S.histPages }; return out;
+  }
+  function drawLc(ts) {
+    var c = $("lcv"), g = c.getContext("2d"), W = c.width, cnt = [], i;
+    for (i = 0; i < 24; i++) cnt.push(0);
+    ts.forEach(function (u) { cnt[new Date(u * 1000).getHours()]++; });
+    var mx = Math.max.apply(null, cnt) || 1, pk = cnt.indexOf(Math.max.apply(null, cnt));
+    g.clearRect(0, 0, W, W); g.fillStyle = g.strokeStyle = S.accent; g.lineCap = "round"; g.font = "22px sans-serif"; g.textAlign = "center";
+    if (S.lcStyle === "bars") {
+      var bw = W / 24;
+      for (i = 0; i < 24; i++) { var bh = cnt[i] / mx * (W - 50); g.globalAlpha = .85; g.fillRect(i * bw + 2, W - 28 - bh, bw - 4, bh); }
+      if (S.lcLabels) { g.globalAlpha = .6; [0, 6, 12, 18].forEach(function (hh) { g.fillText(hh + "h", hh * bw + bw / 2, W - 4); }); }
+    } else {
+      var R0 = W * .2, R1 = W * .44; g.lineWidth = W / 24 * .55;
+      for (i = 0; i < 24; i++) {
+        var an2 = i / 24 * Math.PI * 2 - Math.PI / 2, l = R0 + (R1 - R0) * cnt[i] / mx; g.globalAlpha = .25 + .75 * cnt[i] / mx; g.beginPath();
+        g.moveTo(W / 2 + Math.cos(an2) * R0, W / 2 + Math.sin(an2) * R0); g.lineTo(W / 2 + Math.cos(an2) * l, W / 2 + Math.sin(an2) * l); g.stroke();
+      }
+      if (S.lcLabels) { g.globalAlpha = .6; [0, 6, 12, 18].forEach(function (hh) { var a3 = hh / 24 * Math.PI * 2 - Math.PI / 2; g.fillText(hh, W / 2 + Math.cos(a3) * (W * .48 - 8), W / 2 + Math.sin(a3) * (W * .48 - 8) + 7); }); }
+    }
+    g.globalAlpha = 1; $("lcn").textContent = "Peak hour " + pk + ":00 · " + ts.length + " plays";
+  }
+  function drawGr(ts) {
+    var c = $("gcv"), g = c.getContext("2d"), wk = S.grWeeks, cell = c.width / wk, sz = Math.min(cell, c.height / 7), days = {}, key = function (d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }, i, j, mxv = 1;
+    ts.forEach(function (u) { var k = key(new Date(u * 1000)); days[k] = (days[k] || 0) + 1; });
+    for (var k2 in days) mxv = Math.max(mxv, days[k2]);
+    var today = new Date(); today.setHours(0, 0, 0, 0); var dow = (today.getDay() + 6) % 7, total = 0;
+    g.clearRect(0, 0, c.width, c.height); g.fillStyle = S.accent;
+    for (i = 0; i < wk; i++) for (j = 0; j < 7; j++) {
+      var off = (wk - 1 - i) * 7 + (dow - j); if (off < 0) continue;
+      var d = new Date(today); d.setDate(d.getDate() - off); var n = days[key(d)] || 0; total += n;
+      var x = i * cell + 1, y = j * sz + 1, s2 = sz - 2; g.globalAlpha = n ? .25 + .75 * n / mxv : .08; g.beginPath();
+      if (S.grShape === "circle") g.arc(x + s2 / 2, y + s2 / 2, s2 / 2, 0, 7); else if (S.grShape === "rounded" && g.roundRect) g.roundRect(x, y, s2, s2, s2 * .28); else g.rect(x, y, s2, s2);
+      g.fill();
+    }
+    g.globalAlpha = 1; var st = 0;
+    for (var o = 0; o < 400; o++) { var d2 = new Date(today); d2.setDate(d2.getDate() - o); if (days[key(d2)]) st++; else if (o > 0) break; }
+    $("gcn").textContent = S.grLabels ? total + " plays · " + st + "-day streak" : "";
+  }
+  async function loadOtd() {
+    var el = $("otd"), ys = String(S.otdYears).split(",").map(Number).filter(Boolean), rows = [], i;
+    el.textContent = "Loading…";
+    try {
+      for (i = 0; i < ys.length; i++) {
+        var t2;
+        if (noData()) t2 = ["Daft Punk – Digital Love", "M83 – Midnight City"][i % 2];
+        else {
+          var d0 = new Date(); d0.setFullYear(d0.getFullYear() - ys[i]); d0.setHours(0, 0, 0, 0);
+          var f = Math.floor(d0 / 1000), d = await lfm("user.getrecenttracks", { limit: S.otdCount, from: f, to: f + 86400 }), tr = d.recenttracks && d.recenttracks.track;
+          tr = Array.isArray(tr) ? tr : tr ? [tr] : [];
+          t2 = tr.filter(function (x) { return x.name; }).map(function (x) { return (x.artist["#text"] || x.artist.name) + " – " + x.name; }).join("; ") || "nothing recorded";
+        }
+        rows.push([ys[i], t2]);
+      }
+      el.innerHTML = "";
+      rows.forEach(function (r) { var p = document.createElement("div"), b = document.createElement("b"); b.textContent = r[0] + (r[0] === 1 ? " year ago: " : " years ago: "); p.appendChild(b); p.appendChild(document.createTextNode(r[1])); p.style.marginBottom = "6px"; el.appendChild(p); });
+    } catch (e) { el.textContent = "Couldn't load."; }
+  }
+  async function taste() {
+    var out = $("tres"), u2 = $("tu").value.trim(); S.tmUser = u2; save();
+    if (!u2) { out.textContent = "Enter a username first."; return; }
+    out.textContent = "Comparing…";
+    try {
+      var a, b;
+      if (noData()) { a = [["Daft Punk", 90], ["M83", 60], ["Air", 40]]; b = [["Daft Punk", 70], ["Justice", 50], ["Air", 30]]; }
+      else {
+        var A = await lfm("user.gettopartists", { period: S.tmPeriod, limit: S.tmCount }), B = await lfm("user.gettopartists", { user: u2, period: S.tmPeriod, limit: S.tmCount });
+        if (B.error) throw new Error(B.message);
+        a = A.topartists.artist.map(function (x) { return [x.name, +x.playcount]; }); b = B.topartists.artist.map(function (x) { return [x.name, +x.playcount]; });
+      }
+      var mb = {}, dot = 0, na = 0, nb = 0, shared = []; b.forEach(function (x) { mb[x[0].toLowerCase()] = x[1]; nb += x[1] * x[1]; });
+      a.forEach(function (x) { na += x[1] * x[1]; var y = mb[x[0].toLowerCase()]; if (y) { dot += x[1] * y; shared.push([x[0], Math.min(x[1], y)]); } });
+      shared.sort(function (p, q) { return q[1] - p[1]; });
+      out.textContent = "Match " + Math.round(dot / Math.sqrt(na * nb || 1) * 100) + "% · " + (shared.slice(0, 5).map(function (x) { return x[0]; }).join(", ") || "no shared artists");
+    } catch (e) { out.textContent = "Couldn't compare: " + e.message; }
+  }
+  async function labsRefresh() {
+    try {
+      if (S.wLc || S.wGr) { var ts = await loadHist(); if (S.wLc) drawLc(ts); if (S.wGr) drawGr(ts); }
+      if (S.wOtd) { var k = S.otdYears + "|" + S.otdCount + "|" + new Date().toDateString(); if (k !== otdKey) { otdKey = k; loadOtd(); } }
+    } catch (e) { toast("Last.fm history: " + e.message); }
+  }
+  /* galaxy */
+  function toggleGalaxy() { gx.on = !gx.on; $("glx").classList.toggle("on", gx.on); if (gx.on && !gx.nodes.length) galaxyLoad(); }
+  async function galaxyLoad() {
+    var L = $("gxl"); L.textContent = "Loading…";
+    try {
+      var names, ed = {}, key = function (i, j) { return Math.min(i, j) + "-" + Math.max(i, j); };
+      if (noData()) {
+        names = ["Daft Punk", "M83", "Justice", "Röyksopp", "Air", "Moderat", "Bonobo", "Four Tet", "Caribou", "Jamie xx", "Disclosure", "Kavinsky"].slice(0, S.gxCount).map(function (n, i) { return { name: n, pc: 100 - i * 6 }; });
+        names.forEach(function (n, i) { [1, 6].forEach(function (k) { var j = (i * 3 + k) % names.length; if (j !== i) ed[key(i, j)] = [Math.min(i, j), Math.max(i, j)]; }); });
+      } else {
+        var A = await lfm("user.gettopartists", { period: S.gxPeriod, limit: S.gxCount }), idx = {};
+        names = A.topartists.artist.map(function (a, i) { idx[a.name.toLowerCase()] = i; return { name: a.name, pc: +a.playcount }; });
+        var sims = await Promise.all(names.map(function (n) { return lfm("artist.getsimilar", { artist: n.name, limit: 8 }).then(function (d) { return (d.similarartists && d.similarartists.artist) || []; }).catch(function () { return []; }); }));
+        sims.forEach(function (l, i) { l.forEach(function (s) { var j = idx[s.name.toLowerCase()]; if (j != null && j !== i) ed[key(i, j)] = [Math.min(i, j), Math.max(i, j)]; }); });
+      }
+      var N = names.length;
+      names.forEach(function (n, i) { var y = 1 - i / Math.max(1, N - 1) * 2, r = Math.sqrt(1 - y * y), ph = i * 2.399963; n.x = Math.cos(ph) * r; n.y = y; n.z = Math.sin(ph) * r; });
+      gx.nodes = names; gx.edges = Object.keys(ed).map(function (k) { return ed[k]; }); L.textContent = N + " artists · drag to rotate · Esc to close";
+    } catch (e) { L.textContent = "Couldn't load: " + e.message; }
+  }
+  function drawGalaxy(t) {
+    var c = $("gxc"), g = c.getContext("2d"), w = c.clientWidth, h = c.clientHeight, dt = Math.min(.1, (t - gx.last) / 1000 || 0); gx.last = t;
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    g.clearRect(0, 0, w, h); if (!gx.drag) gx.yaw += S.gxSpin * Math.PI / 180 * dt;
+    var cy2 = Math.cos(gx.yaw), sy = Math.sin(gx.yaw), cp = Math.cos(gx.pitch), sp = Math.sin(gx.pitch), R = Math.min(w, h) * .36 * S.gxSize / 100;
+    var mx2 = Math.max.apply(null, gx.nodes.map(function (n) { return n.pc; }).concat(1));
+    var P = gx.nodes.map(function (n) {
+      var x = n.x * cy2 - n.z * sy, z = n.x * sy + n.z * cy2, y = n.y * cp - z * sp; z = n.y * sp + z * cp; var sc = 2.8 / (2.8 - z);
+      return { x: w / 2 + x * R * sc, y: h / 2 + y * R * sc, s: sc, z: z, n: n };
+    });
+    if (S.gxEdges) gx.edges.forEach(function (e) { var a = P[e[0]], b = P[e[1]]; g.strokeStyle = S.accent; g.lineWidth = 1; g.globalAlpha = .08 + .22 * ((a.z + b.z) / 2 + 1) / 2; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); });
+    P.slice().sort(function (a, b) { return a.z - b.z; }).forEach(function (p) {
+      var r = (4 + 10 * Math.sqrt(p.n.pc / mx2)) * p.s; g.globalAlpha = .35 + .65 * (p.z + 1) / 2; g.fillStyle = S.accent; g.beginPath(); g.arc(p.x, p.y, r, 0, 7); g.fill();
+      if (S.gxLabels) { g.fillStyle = "#ededed"; g.font = Math.round(11 + 4 * p.s) + "px sans-serif"; g.fillText(p.n.name, p.x + r + 4, p.y + 4); }
+    });
+    g.globalAlpha = 1;
+  }
+  var gxc = $("gxc");
+  gxc.addEventListener("pointerdown", function (e) { gx.drag = { x: e.clientX, y: e.clientY, yaw: gx.yaw, pitch: gx.pitch }; gxc.setPointerCapture(e.pointerId); });
+  gxc.addEventListener("pointermove", function (e) { if (gx.drag) { gx.yaw = gx.drag.yaw + (e.clientX - gx.drag.x) / 200; gx.pitch = Math.max(-1.4, Math.min(1.4, gx.drag.pitch + (e.clientY - gx.drag.y) / 200)); } });
+  gxc.addEventListener("pointerup", function () { gx.drag = null; });
+  $("gxx").onclick = toggleGalaxy; $("gxo").onclick = toggleGalaxy; $("tgo").onclick = taste; $("tu").value = S.tmUser;
+  /* live sky */
+  function lerp(a, b, f) { return a + (b - a) * f; }
+  function sunPos(ms, lat, lon) {
+    var R = Math.PI / 180, d = ms / 864e5 - 10957.5, g = (357.529 + .98560028 * d) * R, q = 280.459 + .98564736 * d, L = (q + 1.915 * Math.sin(g) + .02 * Math.sin(2 * g)) * R;
+    var e = (23.439 - 4e-7 * d) * R, ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L)), dec = Math.asin(Math.sin(e) * Math.sin(L)), ha = (280.46061837 + 360.98564736629 * d + lon) * R - ra;
+    return { el: Math.asin(Math.sin(lat * R) * Math.sin(dec) + Math.cos(lat * R) * Math.cos(dec) * Math.cos(ha)) / R, ha: Math.atan2(Math.sin(ha), Math.cos(ha)) };
+  }
+  var SKY = [[-18, [5, 7, 18], [12, 18, 48]], [-6, [24, 28, 72], [140, 82, 96]], [0, [70, 74, 136], [255, 152, 92]], [8, [92, 150, 230], [205, 228, 250]], [45, [48, 128, 224], [150, 205, 255]]];
+  function drawSky(t) {
+    var c = $("sky"), g = c.getContext("2d"), w = c.clientWidth, h = c.clientHeight, i;
+    if (!w) return; if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    var lat = parseFloat(S.skyLat), lon = parseFloat(S.skyLon);
+    if (isNaN(lat)) lat = geo ? geo.lat : 51.5; if (isNaN(lon)) lon = geo ? geo.lon : -new Date().getTimezoneOffset() / 4;
+    var now = skyT0 + (Date.now() - skyT0) * S.skyWarp, p = sunPos(now, lat, lon), el = Math.max(-18, Math.min(45, p.el)), cl = wx ? wx.cloud / 100 : .25, a = SKY[0], b = SKY[4];
+    for (i = 0; i < SKY.length - 1; i++) if (el >= SKY[i][0] && el <= SKY[i + 1][0]) { a = SKY[i]; b = SKY[i + 1]; break; }
+    var f = (el - a[0]) / (b[0] - a[0]) || 0, day = Math.max(0, Math.min(1, (el + 6) / 20)), gr = g.createLinearGradient(0, 0, 0, h);
+    [1, 2].forEach(function (k) {
+      var m = [0, 1, 2].map(function (j) { return Math.round(lerp(lerp(a[k][j], b[k][j], f), 120 + day * 50, cl * .5 * (.3 + day * .7))); });
+      gr.addColorStop(k === 1 ? 0 : 1, "rgb(" + m.join(",") + ")");
+    });
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    if (S.skyStars && el < -3) {
+      var al = Math.min(1, (-3 - el) / 10) * (1 - cl * .85); g.fillStyle = "#fff";
+      for (i = 0; i < 140; i++) { g.globalAlpha = al * (.4 + .6 * ((i * 37) % 10) / 10); g.fillRect((i * 7919 % 1000) / 1000 * w, (i * 104729 % 1000) / 1000 * h * .8, 1.5, 1.5); }
+      g.globalAlpha = 1;
+    }
+    var X = w * (.5 + Math.sin(p.ha) * .42), Y = h * (.86 - Math.max(-8, p.el) / 90 * .8);
+    if (S.skySun && p.el > -8) {
+      var rg = g.createRadialGradient(X, Y, 0, X, Y, 120); rg.addColorStop(0, "rgba(255,240,200,.95)"); rg.addColorStop(.15, "rgba(255,200,120,.5)"); rg.addColorStop(1, "rgba(255,160,80,0)");
+      g.fillStyle = rg; g.fillRect(X - 130, Y - 130, 260, 260);
+    } else if (S.skySun) { g.fillStyle = "rgba(235,240,255,.9)"; g.beginPath(); g.arc(w - X, h * (.86 - Math.max(-8, -p.el) / 90 * .8), 22, 0, 7); g.fill(); }
+    if (S.skyClouds) {
+      g.fillStyle = "rgba(" + Math.round(120 + day * 120) + "," + Math.round(125 + day * 118) + "," + Math.round(140 + day * 105) + ",.22)";
+      for (i = 0; i < Math.round(cl * 12); i++) { var cx2 = ((i * 211 % 100) / 100 * w * 1.4 + t * .004 * (1 + i % 3 * .3)) % (w * 1.4) - w * .2; g.beginPath(); g.ellipse(cx2, h * (.1 + (i * 53 % 55) / 100), 120 + i % 4 * 40, 28 + i % 3 * 10, 0, 0, 7); g.fill(); }
+    }
+  }
+  /* soundscapes */
+  function actx() { if (!ACX) ACX = new (window.AudioContext || window.webkitAudioContext)(); if (ACX.state === "suspended") ACX.resume(); return ACX; }
+  document.addEventListener("click", function () { if (ACX && ACX.state === "suspended") ACX.resume(); });
+  function noiseBuf(type) {
+    if (NB[type]) return NB[type];
+    var a = actx(), n = a.sampleRate * 3, b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0), last = 0, i;
+    for (i = 0; i < n; i++) { var wv = Math.random() * 2 - 1; if (type === "brown") { last = (last + .02 * wv) / 1.02; d[i] = last * 3.5; } else d[i] = wv; }
+    return (NB[type] = b);
+  }
+  var SN = { Rain: ["white", "highpass", 1200], Wind: ["brown", "bandpass", 450], Ocean: ["brown", "lowpass", 800], Cafe: ["white", "bandpass", 650], White: ["white", "allpass", 1000], Brown: ["brown", "allpass", 1000] };
+  function startSound(n) {
+    var a = actx(), c = SN[n], src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(), v = a.createGain(), lfo = null;
+    src.buffer = noiseBuf(c[0]); src.loop = true; f.type = c[1]; f.frequency.value = c[2]; g.gain.value = (n === "Ocean" || n === "Cafe") ? .65 : 1;
+    if (n === "Wind" || n === "Ocean" || n === "Cafe") {
+      lfo = a.createOscillator(); var lg = a.createGain(); lfo.frequency.value = n === "Cafe" ? .7 : .1; lg.gain.value = n === "Wind" ? 250 : .3;
+      lfo.connect(lg); lg.connect(n === "Wind" ? f.frequency : g.gain); lfo.start();
+    }
+    src.connect(f); f.connect(g); g.connect(v); v.connect(a.destination); src.start(); snd[n] = { src: src, lfo: lfo, v: v };
+  }
+  function stopSound(n) { var o = snd[n]; if (!o) return; try { o.src.stop(); if (o.lfo) o.lfo.stop(); o.v.disconnect(); } catch (e) {} delete snd[n]; }
+  function syncSound() {
+    ["Rain", "Wind", "Ocean", "Cafe", "White", "Brown"].forEach(function (n) {
+      var want = S.sndOn && S["sn" + n];
+      if (want && !snd[n]) startSound(n); else if (!want && snd[n]) stopSound(n);
+      if (snd[n]) snd[n].v.gain.value = S["sv" + n] / 100 * S.sndMaster / 100;
+    });
+  }
+  function renderSnd() {
+    var b = $("sndb"); b.innerHTML = "";
+    ["Rain", "Wind", "Ocean", "Cafe", "White", "Brown"].forEach(function (n) {
+      var x = document.createElement("button"); x.textContent = n; x.style.flex = "1 0 30%";
+      if (S.sndOn && S["sn" + n]) x.style.background = "rgba(255,255,255,.18)";
+      x.onclick = function () { S["sn" + n] = !S["sn" + n]; if (S["sn" + n]) S.sndOn = true; save(); apply(); };
+      b.appendChild(x);
+    });
+  }
+  /* generative music: repo radio + weather music */
+  function genOut() { if (!gen) { var a = actx(), f = a.createBiquadFilter(); gen = a.createGain(); f.type = "lowpass"; f.frequency.value = 3500; gen.connect(f); f.connect(a.destination); } return gen; }
+  function tone(freq, dur, vol, wave, atk) {
+    var a = actx(), o = a.createOscillator(), g = a.createGain(), t0 = a.currentTime; o.type = wave; o.frequency.value = freq;
+    g.gain.setValueAtTime(.0001, t0); g.gain.linearRampToValueAtTime(Math.max(.0002, vol), t0 + (atk || .02)); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    o.connect(g); g.connect(genOut()); o.start(t0); o.stop(t0 + dur + .05);
+  }
+  function radioStep() {
+    if (!radio.on) return;
+    var n = radio.notes[radio.i++ % radio.notes.length], sc = SCALES[S.radioScale] || SCALES.pentatonic, m = S.radioRoot + sc[n.h % sc.length] + 12 * ((n.h >> 5) % 3);
+    tone(440 * Math.pow(2, (m - 69) / 12), Math.min(2.5, .4 + n.len / 100), S.radioVol / 100 * .5, S.radioWave, .02);
+    radio.t = setTimeout(radioStep, 60000 / S.radioBpm * (n.len > 70 ? 1 : .5));
+  }
+  async function radioToggle() {
+    var st = $("rst");
+    if (radio.on) { radio.on = false; clearTimeout(radio.t); $("rgo").textContent = "Play"; st.textContent = ""; return; }
+    if (!/^[\w.-]+\/[\w.-]+$/.test(S.ghRepo)) { st.textContent = "Set a GitHub repo (owner/name) in settings."; return; }
+    actx(); st.textContent = "Loading commits…";
+    try {
+      var d = await (await fetch("https://api.github.com/repos/" + S.ghRepo + "/commits?per_page=" + S.radioCommits)).json();
+      if (!Array.isArray(d)) throw new Error(d.message || "not found");
+      radio.notes = d.reverse().map(function (c) { return { h: parseInt(c.sha.slice(0, 8), 16), len: c.commit.message.length }; });
+      radio.on = true; radio.i = 0; $("rgo").textContent = "Stop"; st.textContent = d.length + " commits from " + S.ghRepo; radioStep();
+    } catch (e) { st.textContent = "Couldn't load: " + e.message; }
+  }
+  var WM = { clear: ["major", 60, "triangle"], cloud: ["dorian", 57, "sine"], rain: ["minor", 53, "sine"], snow: ["pentatonic", 72, "sine"], fog: ["dorian", 50, "triangle"], storm: ["minor", 38, "sawtooth"] };
+  function wmKind() { var c = wx ? wx.code : 0; return c <= 1 ? "clear" : c <= 3 ? "cloud" : c >= 95 ? "storm" : (c >= 71 && c <= 77) || c === 85 || c === 86 ? "snow" : c === 45 || c === 48 ? "fog" : "rain"; }
+  function wmStep() {
+    if (!wm.on) return;
+    var k = wmKind(), m = WM[k], sc = SCALES[m[0]], base = m[1] + (S.wmTemp && wx ? Math.max(-5, Math.min(5, Math.round((wx.t - 10) / 5))) : 0), root = Math.floor(Math.random() * sc.length), dur = S.wmEvery * 1.4;
+    [0, 2, 4].forEach(function (d) { var md = base + sc[(root + d) % sc.length] + 12 * Math.floor((root + d) / sc.length); tone(440 * Math.pow(2, (md - 69) / 12), dur, S.wmVol / 100 * (k === "storm" ? .35 : .6), m[2], dur * .35); });
+    $("mst").textContent = k + (wx ? ", " + Math.round(wx.t) + "°" : " (set a weather city for real weather)");
+    wm.t = setTimeout(wmStep, S.wmEvery * 1000);
+  }
+  function wmToggle() { if (wm.on) { wm.on = false; clearTimeout(wm.t); $("mgo").textContent = "Play"; $("mst").textContent = ""; return; } actx(); wm.on = true; $("mgo").textContent = "Stop"; wmStep(); }
+  $("rgo").onclick = radioToggle; $("mgo").onclick = wmToggle;
+  /* commit vinyl */
+  async function commitLoad() {
+    var key = S.ccSource + "|" + (S.ccSource === "repo" ? S.ghRepo : S.ghUser), saved = null;
+    try { saved = JSON.parse(localStorage.getItem("webhome-gh")); } catch (e) {}
+    if (saved && saved.key === key && Date.now() - saved.at < 18e5) { cv.rings = saved.rings; drawCv(); return; }
+    var url = S.ccSource === "repo" ? "https://api.github.com/repos/" + S.ghRepo + "/commits?per_page=100" : "https://api.github.com/users/" + encodeURIComponent(S.ghUser) + "/events/public?per_page=100";
+    try {
+      var d = await (await fetch(url)).json(); if (!Array.isArray(d)) throw new Error(d.message || "not found");
+      cv.rings = d.map(function (x) {
+        if (S.ccSource === "repo") return { n: Math.min(8, 1 + (x.commit.message.length / 40 | 0)), h: parseInt(x.sha.slice(0, 4), 16) % 360 };
+        var rn = x.repo ? x.repo.name : "x", hh = 0, i; for (i = 0; i < rn.length; i++) hh = (hh * 31 + rn.charCodeAt(i)) % 360;
+        return { n: x.payload && x.payload.size ? Math.min(8, x.payload.size) : 1, h: hh };
+      });
+      try { localStorage.setItem("webhome-gh", JSON.stringify({ key: key, at: Date.now(), rings: cv.rings })); } catch (e) {}
+      drawCv();
+    } catch (e) { toast("Commit vinyl: " + e.message); }
+  }
+  function drawCv() {
+    var c = $("cvn"), g = c.getContext("2d"), W = c.width, N = Math.min(S.ccRings, cv.rings.length), i;
+    g.clearRect(0, 0, W, W); g.lineWidth = Math.max(1, W * .27 / Math.max(1, N) * .6);
+    for (i = 0; i < N; i++) {
+      var rg = cv.rings[i]; g.globalAlpha = S.ccOp / 100 * (.3 + .7 * rg.n / 8); g.strokeStyle = S.ccColor === "repo" ? "hsl(" + rg.h + ",70%,60%)" : S.accent;
+      g.beginPath(); g.arc(W / 2, W / 2, W * (.49 - .27 * i / Math.max(1, N)), 0, 7); g.stroke();
+    }
+    g.globalAlpha = 1;
+  }
+  /* custom visualizer code */
+  var cfn = null, csrc = null;
+  function customViz(g, w, h, t) {
+    try { if (csrc !== S.vizCode) { cfn = new Function("g", "w", "h", "lv", "t", "S", "accent", S.vizCode); csrc = S.vizCode; } cfn(g, w, h, sm, t, S, S.accent); }
+    catch (e) { g.fillStyle = "#ff6b6b"; g.font = "14px sans-serif"; g.fillText("Visualizer error: " + e.message, 10, 20); }
+  }
+
   function focusSearch() {
     var ae = document.activeElement;
     if (S.autoFocus && S.showSearch && (!ae || ae === document.body) && !panel.classList.contains("open")) qEl.focus({ preventScroll: true });
@@ -2010,7 +1611,7 @@
   start();
   weather();
   if (firstRun && !OVERLAY) openPanel();
-  if (!S.v4 && !OVERLAY) { S.v4 = 1; save(); toast("Settings: press " + fmtKey(S.hkSettings) + " to open or close"); }
+  if (!S.v4 && !OVERLAY) { S.v4 = 1; save(); toast("Settings: press " + fmtKey(S.hkSettings) + " or right-click the page"); }
   labsRefresh(); if (S.ccOn) commitLoad();
 })();
 </script>
