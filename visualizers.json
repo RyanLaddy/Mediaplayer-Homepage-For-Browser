@@ -1,0 +1,4 @@
+{
+  "Neon Bars": "for (let i = 0; i < lv.length; i++) {\n  const bw = w / lv.length, bh = lv[i] * h;\n  g.fillStyle = 'hsl(' + (i / lv.length * 320) + ',90%,60%)';\n  g.fillRect(i * bw + 1, h - bh, bw - 2, bh);\n}",
+  "Heartbeat Line": "g.strokeStyle = accent; g.lineWidth = 3; g.beginPath();\nfor (let i = 0; i < lv.length; i++) {\n  const x = i * w / lv.length, y = h / 2 - (i % 2 ? 1 : -1) * lv[i] * h * 0.45;\n  i ? g.lineTo(x, y) : g.moveTo(x, y);\n}\ng.stroke();"
+}

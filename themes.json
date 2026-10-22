@@ -1,0 +1,4 @@
+{
+  "Neon Night": { "bgMode": "gradient", "bgColor": "#0a0020", "bgColor2": "#12004d", "bgAngle": 160, "accent": "#ff3df2", "textColor": "#f5e9ff", "vinylColor": "#0a0014" },
+  "Paper": { "bgMode": "color", "bgColor": "#f4f1ea", "accent": "#222222", "textColor": "#1a1a1a", "vinylColor": "#1a1a1a" }
+}

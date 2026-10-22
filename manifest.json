@@ -1,0 +1,21 @@
+{
+  "name": "Home",
+  "short_name": "Home",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='%23121212'/><circle cx='256' cy='256' r='180' fill='%23242424'/><circle cx='256' cy='256' r='64' fill='%238fd3b6'/><circle cx='256' cy='256' r='12' fill='%23121212'/></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
