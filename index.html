@@ -233,8 +233,6 @@
   .si.on, .si:hover { background: rgba(255,255,255,.09); }
 
   /* visualizer, particles, widgets, extras */
-  #fxp { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-  #vizbox { position: absolute; left: calc(var(--vx, 50) * 1%); top: calc(var(--vy, 78) * 1%); width: calc(var(--vw, 56) * 1vw); height: var(--vh, 110px); translate: -50% -50%; z-index: 0; pointer-events: none; }
   #viz { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   #vizh { display: none; position: absolute; right: -7px; bottom: -7px; width: 14px; height: 14px; border-radius: 50%; background: #fff; opacity: .85; cursor: nwse-resize; }
   body.viz-edit #vizbox { z-index: 6; pointer-events: auto; cursor: move; outline: 1px dashed rgba(255,255,255,.55); background: rgba(255,255,255,.04); touch-action: none; }
