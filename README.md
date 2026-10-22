@@ -32,7 +32,7 @@ This is a free website you can use as your browser's **homepage** and **new tab 
 | 🧩 **Widgets** | Clock, weather, quick links, notes, to-do list, focus timer, countdown, world clock, calendar, daily quote. |
 | 🎨 **Customisable** | Themes, colour controls (brightness, contrast, gamma, hue, saturation), layouts, fonts, backgrounds, particles. |
 | 🔌 **Everything is optional** | Every feature has its own on/off switch in the settings panel. |
-| ⚙️ **How to open settings** | Use KEYBIND to open/close the settings.. |
+| ⚙️ **How to open settings** | Use (Right Click) to open/close the settings.. |
 
 ## 🚀 Quick start (about 3 minutes)
 
