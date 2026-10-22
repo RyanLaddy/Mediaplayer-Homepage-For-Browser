@@ -454,7 +454,7 @@
   if (OVERLAY) {
     var qv = function (k, d) { return QP.has(k) ? QP.get(k) : d; };
     Object.assign(S, { user: qv("user", S.user), key: qv("key", S.key), demo: false, showSearch: false, showClock: false, showLinks: false, showNotes: false, showRecent: false,
-      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, rightClick: false, showGear: false, news: false, bgMode: "art", notify: false,
+      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, ctrl+i: false, showGear: false, news: false, bgMode: "art", notify: false,
       faviconArt: false, sndOn: false, ccOn: false, showStatus: qv("status", "1") === "1", showVinyl: qv("vinyl", "1") === "1", showCover: qv("cover", "1") === "1",
       showText: qv("text", "1") === "1", showViz: qv("viz", "0") === "1", ovScale: +qv("scale", 100), ovAlign: qv("align", "left") });
     ["wPomo", "wTodo", "wCd", "wWc", "wYear", "wCal", "wQuote", "wLc", "wGr", "wOtd", "wTm", "wSnd", "wRadio", "wWm"].forEach(function (k) { S[k] = false; });
@@ -605,7 +605,7 @@
     lcLabels: "Hour labels", grLabels: "Totals and streak", gxLabels: "Artist names", gxEdges: "Similarity links", skySun: "Sun and moon", skyStars: "Stars", skyClouds: "Clouds",
     news: "Newspaper mode", newsGray: "Black-and-white cover", sndOn: "Soundscapes on", wmTemp: "Temperature shifts the key", ccOn: "Commit vinyl grooves",
     shareApply: "Apply setups from share links", ovVinyl: "Show vinyl", ovCover: "Show cover", ovText: "Show text", ovViz: "Show visualizer",
-    rightClick: "Right-click opens settings", showGear: "Show a settings button" });
+    ctrl+i: "Ctrl + I opens settings", showGear: "Show a settings button" });
   Object.assign(sliders, { histDays: ["Days of history", 7, 365, 1, ""], histPages: ["Pages to load (200 plays each)", 1, 10, 1, ""], grWeeks: ["Weeks shown", 8, 52, 1, ""],
     otdCount: ["Songs per year", 1, 6, 1, ""], tmCount: ["Artists compared", 10, 100, 5, ""], gxCount: ["Artists", 8, 40, 1, ""], gxSpin: ["Auto-rotate", 0, 60, 1, " °/s"], gxSize: ["Size", 50, 150, 5, "%"],
     skyWarp: ["Time-lapse (1 = real time)", 1, 3600, 1, "×"], sndMaster: ["Master volume", 0, 100, 1, "%"], radioBpm: ["Tempo", 40, 200, 1, " bpm"], radioRoot: ["Root note (MIDI)", 36, 72, 1, ""],
@@ -699,7 +699,7 @@
   function labs() {
     var T = function (a) { return a.map(toggleRow).join(""); }, L = function (a) { return a.map(sliderRow).join(""); };
     var vc = Object.assign({ "": "Choose…" }, Object.keys(COMM.viz).reduce(function (o, k) { o[k] = k; return o; }, {}));
-    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["rightClick", "showGear"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
+    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["ctrl+i", "showGear"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
       grp("Listening clock and history", T(["wLc", "lcLabels"]) + sel("lcStyle", "Style", { radial: "Radial", bars: "Bars" }) + L(["histDays", "histPages"])) +
       grp("Listening calendar", T(["wGr", "grLabels"]) + sel("grShape", "Cells", { square: "Square", rounded: "Rounded", circle: "Circles" }) + L(["grWeeks"])) +
       grp("On this day", T(["wOtd"]) + txt("otdYears", "Years ago (comma separated)") + L(["otdCount"])) +
@@ -1242,7 +1242,7 @@
   }, true);
   document.addEventListener("contextmenu", function (e) {
     var t = e.target.tagName;
-    if (!S.rightClick || OVERLAY || t === "INPUT" || t === "TEXTAREA" || t === "A" || panel.contains(e.target)) return;
+    if (!S.ctrl+i || OVERLAY || t === "INPUT" || t === "TEXTAREA" || t === "A" || panel.contains(e.target)) return;
     e.preventDefault(); toggleSettings();
   });
   [["themes.json", function (j) { Object.assign(THEMES, j); }], ["visualizers.json", function (j) { COMM.viz = j; }]].forEach(function (p) {
