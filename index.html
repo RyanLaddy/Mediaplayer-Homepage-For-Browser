@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+<!-- saved from url=(0061)https://ryanladdy.github.io/Mediaplayer-Homepage-For-Browser/ -->
+<html lang="en" style="--k: 1; --peek: 0.5; --bgc: #000000; --font: &quot;DM Sans&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; --persp: 890px; --depth: 18; --gloss: 0.3; --radius: 4px; --shadow: 0.5; --label: 36%; --tsize: 1; --gapk: 1; --sw: 560px; --vig: 0.3; --grain: 0; --ink: #ededed; --accent: #ededed; --vc: #0e0e0e; --cs: 0.4; --cdh: -14deg; --gp: 7px; --ga: 0.12; --shine: 0.22; --sp: 0.05; --mk: 0.5; --sh: 48px; --sr: 10px; --so: 0.7; --sb: 0px; --cz: 1; --ls: 46px; --nw: 220px; --nh: 110px; --no: 0.55; --tw: 600; --vh: 310px; --vx: 50; --vy: 78; --vw: 36; --wo: 0.6; --bgi: none; --ovs: 1; --bg: #121212; --dim: #8c8c8c; --spin: 10s; --blur: 25px;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#121212">
-<link rel="manifest" href="manifest.json">
-<title>Home</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="manifest" href="https://ryanladdy.github.io/Mediaplayer-Homepage-For-Browser/manifest.json">
+<title>♪ Can't Get Enough – J. Cole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./saved_files/css2" rel="stylesheet" media="all" onload="this.media='all'">
 <style>
   :root {
     --bg: #121212;
@@ -233,6 +233,8 @@
   .si.on, .si:hover { background: rgba(255,255,255,.09); }
 
   /* visualizer, particles, widgets, extras */
+  #fxp { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  #vizbox { position: absolute; left: calc(var(--vx, 50) * 1%); top: calc(var(--vy, 78) * 1%); width: calc(var(--vw, 56) * 1vw); height: var(--vh, 110px); translate: -50% -50%; z-index: 0; pointer-events: none; }
   #viz { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   #vizh { display: none; position: absolute; right: -7px; bottom: -7px; width: 14px; height: 14px; border-radius: 50%; background: #fff; opacity: .85; cursor: nwse-resize; }
   body.viz-edit #vizbox { z-index: 6; pointer-events: auto; cursor: move; outline: 1px dashed rgba(255,255,255,.55); background: rgba(255,255,255,.04); touch-action: none; }
@@ -301,67 +303,67 @@
     .search { top: 84px; } .notes, .recent { display: none; } .clock { left: 18px; top: 18px; } .time { font-size: 1.6rem; } .links { max-width: 92vw; }
   }
 </style>
-</head>
-<body>
+<link rel="icon" href="https://lastfm-img.freetls.fastly.net/i/u/300x300/0e16b68c3a464068adf15d6d4ce5be9d.png"></head>
+<body class="no-search no-spin no-clock no-notes rev only-play hide-pomo hide-todo hide-cd hide-wc hide-year hide-cal hide-quote no-viz eq-on bg-anim tl lh ng no-mic" data-mark="none" data-cpos="br" data-spos="top" data-clock="tl" data-layout="row" data-align="left" data-vpos="bottom" data-state="playing">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="gamma" color-interpolation-filters="sRGB">
-    <feComponentTransfer>
-      <feFuncR type="gamma" exponent="1"/><feFuncG type="gamma" exponent="1"/><feFuncB type="gamma" exponent="1"/>
-    </feComponentTransfer>
+    <fecomponenttransfer>
+      <fefuncr type="gamma" exponent="1"></fefuncr><fefuncg type="gamma" exponent="1"></fefuncg><fefuncb type="gamma" exponent="1"></fefuncb>
+    </fecomponenttransfer>
   </filter>
 </svg>
 
-<div id="page">
-  <div class="bg" id="bg"></div>
+<div id="page" style="filter: url(&quot;#gamma&quot;) brightness(115%) contrast(160%) saturate(100%) hue-rotate(0deg) grayscale(25%);">
+  <div class="bg" id="bg" style="translate: 0px; background-image: url(&quot;https://lastfm-img.freetls.fastly.net/i/u/300x300/0e16b68c3a464068adf15d6d4ce5be9d.png&quot;);"></div>
   <canvas id="sky"></canvas>
-  <header class="mast" id="mast"><b id="mt"></b><span id="md"></span></header>
-  <div class="veil" id="veil"></div>
+  <header class="mast" id="mast"><b id="mt">The Daily Home</b><span id="md">Thursday, October 22, 2026</span></header>
+  <div class="veil" id="veil" style="opacity: 0.239023;"></div>
   <div class="fx"></div>
-  <div id="vizbox"><canvas id="viz"></canvas><i id="vizh"></i></div><canvas id="fxp"></canvas>
+  <div id="vizbox"><canvas id="viz"></canvas><i id="vizh"></i></div><canvas id="fxp" width="1080" height="1920"></canvas>
 
   <form class="search" id="search" role="search">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <button type="button" class="chip" id="chip" title="Click to change search engine"></button><input id="q" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Search">
-    <button type="button" class="sbtn" id="clr" aria-label="Clear">×</button><button type="button" class="sbtn" id="mic" aria-label="Voice search">🎤</button><div class="sug" id="sug"></div>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+    <button type="button" class="chip" id="chip" title="Click to change search engine">DuckDuckGo</button><input id="q" type="text" autocomplete="off" spellcheck="false" autofocus="" aria-label="Search" placeholder="Search DuckDuckGo or type a URL">
+    <button type="button" class="sbtn" id="clr" aria-label="Clear">×</button><button type="button" class="sbtn" id="mic" aria-label="Voice search">🎤</button><div class="sug" id="sug" style="display: none;"></div>
   </form>
 
-  <div class="clock"><div class="hi" id="hi"></div><div class="time" id="time"></div><div class="date" id="date"></div><div class="wx" id="wx"></div></div>
+  <div class="clock"><div class="hi" id="hi">Good evening, Ryan</div><div class="time" id="time">19:23:04</div><div class="date" id="date">Thursday, October 22</div><div class="wx" id="wx"></div></div>
   <nav class="links" id="links"></nav>
   <div class="notes"><textarea id="note" placeholder="Notes" spellcheck="false" aria-label="Notes"></textarea></div>
   <div class="widgets" id="widgets">
     <div class="w" id="w-pomo"><div class="wt">Focus timer</div><div class="big" id="pt">25:00</div><div class="wb"><button id="pgo">Start</button><button id="prs">Reset</button></div></div>
     <div class="w" id="w-todo"><div class="wt">To-do</div><ul id="tl"></ul><input type="text" id="ti" placeholder="Add a task" autocomplete="off"></div>
-    <div class="w" id="w-cd"><div class="wt" id="cdn"></div><div class="big" id="cdv"></div></div>
-    <div class="w" id="w-wc"><div class="wt" id="wcn"></div><div class="big" id="wcv"></div></div>
-    <div class="w" id="w-yr"><div class="wt">Year progress</div><div class="bar"><i id="yrb"></i></div><div class="sm" id="yrt"></div></div>
-    <div class="w" id="w-cal"><div class="wt" id="calt"></div><div class="cal" id="calg"></div></div>
-    <div class="w" id="w-q"><div class="sm" id="qt"></div></div>
-    <div class="w" id="w-lc"><div class="wt">Listening clock</div><canvas id="lcv" width="320" height="320"></canvas><div class="sm" id="lcn"></div></div>
-    <div class="w" id="w-gr"><div class="wt">Listening calendar</div><canvas id="gcv" width="460" height="130"></canvas><div class="sm" id="gcn"></div></div>
-    <div class="w" id="w-otd"><div class="wt">On this day</div><div class="sm" id="otd"></div></div>
-    <div class="w" id="w-tm"><div class="wt">Taste match</div><input type="text" id="tu" placeholder="Friend's Last.fm name" autocomplete="off"><div class="wb"><button id="tgo">Compare</button><button id="gxo">Galaxy</button></div><div class="sm" id="tres"></div></div>
-    <div class="w" id="w-snd"><div class="wt">Soundscapes</div><div class="wb" id="sndb" style="flex-wrap:wrap"></div></div>
-    <div class="w" id="w-radio"><div class="wt">Repo radio</div><div class="wb"><button id="rgo">Play</button></div><div class="sm" id="rst"></div></div>
-    <div class="w" id="w-wm"><div class="wt">Weather music</div><div class="wb"><button id="mgo">Play</button></div><div class="sm" id="mst"></div></div>
+    <div class="w" id="w-cd"><div class="wt" id="cdn">Countdown</div><div class="big" id="cdv">Set a date</div></div>
+    <div class="w" id="w-wc"><div class="wt" id="wcn">World clock</div><div class="big" id="wcv">Bad zone</div></div>
+    <div class="w" id="w-yr"><div class="wt">Year progress</div><div class="bar"><i id="yrb" style="width: 80.7578%;"></i></div><div class="sm" id="yrt">2026 is 80.8% done</div></div>
+    <div class="w" id="w-cal"><div class="wt" id="calt">October 2026</div><div class="cal" id="calg"><b>M</b><b>T</b><b>W</b><b>T</b><b>F</b><b>S</b><b>S</b><span></span><span></span><span></span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span class="t">22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span></div></div>
+    <div class="w" id="w-q"><div class="sm" id="qt">Make something you would want to use.</div></div>
+    <div class="w" id="w-lc" style="display: none;"><div class="wt">Listening clock</div><canvas id="lcv" width="320" height="320"></canvas><div class="sm" id="lcn"></div></div>
+    <div class="w" id="w-gr" style="display: none;"><div class="wt">Listening calendar</div><canvas id="gcv" width="460" height="130"></canvas><div class="sm" id="gcn"></div></div>
+    <div class="w" id="w-otd" style="display: none;"><div class="wt">On this day</div><div class="sm" id="otd"></div></div>
+    <div class="w" id="w-tm" style="display: none;"><div class="wt">Taste match</div><input type="text" id="tu" placeholder="Friend's Last.fm name" autocomplete="off"><div class="wb"><button id="tgo">Compare</button><button id="gxo">Galaxy</button></div><div class="sm" id="tres"></div></div>
+    <div class="w" id="w-snd" style="display: none;"><div class="wt">Soundscapes</div><div class="wb" id="sndb" style="flex-wrap:wrap"><button style="flex: 1 0 30%;">Rain</button><button style="flex: 1 0 30%;">Wind</button><button style="flex: 1 0 30%;">Ocean</button><button style="flex: 1 0 30%;">Cafe</button><button style="flex: 1 0 30%;">White</button><button style="flex: 1 0 30%;">Brown</button></div></div>
+    <div class="w" id="w-radio" style="display: none;"><div class="wt">Repo radio</div><div class="wb"><button id="rgo">Play</button></div><div class="sm" id="rst"></div></div>
+    <div class="w" id="w-wm" style="display: none;"><div class="wt">Weather music</div><div class="wb"><button id="mgo">Play</button></div><div class="sm" id="mst"></div></div>
   </div>
 
   <main>
-    <div class="scene" id="scene"><div class="deck" id="deck">
-      <div class="disc"><div class="record"><canvas id="cvn" width="600" height="600"></canvas><div class="label" id="label"></div></div><div class="sheen"></div></div>
-      <div class="sleeve" id="sleeve"></div>
+    <div class="scene" id="scene"><div class="deck" id="deck" style="transform: translateY(-10.19px) rotateX(0deg) rotateY(0deg) scale(1.011); --gx: 49.99999999998884%; --gy: 49.99999999999603%;">
+      <div class="disc"><div class="record"><canvas id="cvn" width="600" height="600"></canvas><div class="label" id="label" style="background-image: url(&quot;https://lastfm-img.freetls.fastly.net/i/u/300x300/0e16b68c3a464068adf15d6d4ce5be9d.png&quot;);"></div></div><div class="sheen"></div></div>
+      <div class="sleeve" id="sleeve" style="background-image: url(&quot;https://lastfm-img.freetls.fastly.net/i/u/300x300/0e16b68c3a464068adf15d6d4ce5be9d.png&quot;);"></div>
     </div></div>
-    <section class="info">
-      <div class="status"><span class="eq"><i></i><i></i><i></i></span><span id="status">Connecting…</span></div>
-      <h1 id="title">Nothing playing</h1>
-      <p class="artist" id="artist"></p>
-      <p class="album" id="album"></p>
-      <ol class="recent" id="recent"></ol>
+    <section class="info" style="translate: 0px;">
+      <div class="status"><span class="eq"><i></i><i></i><i></i></span><span id="status">Playing · 1 min</span></div>
+      <h1 id="title">Can't Get Enough</h1>
+      <p class="artist" id="artist">J. Cole</p>
+      <p class="album" id="album">Cole World: The Sideline Story</p>
+      <ol class="recent" id="recent"><li>J. Cole – Intro - Live</li><li>J. Cole – Note to Self</li><li>J. Cole – 3001</li><li>J. Cole – School Daze</li><li>J. Cole – Only You (with Burna Boy)</li></ol>
     </section>
   </main>
 </div>
 
 <button class="gear" id="gear" aria-label="Settings" title="Settings">
-  <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+  <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
 </button>
 <div class="glx" id="glx"><canvas id="gxc"></canvas><button id="gxx" aria-label="Close">×</button><div class="gl" id="gxl"></div></div>
 <div id="toast"></div>
@@ -402,7 +404,7 @@
     cdName: "", cdDate: "", wcZone: "America/New_York", quoteCustom: "", todos: [], widgetOp: 60,
     bgColor2: "#3a2a6a", bgAngle: 135, bgImage: "", bgAnim: false, pOn: false, pCount: 40, pSpeed: 100, pSize: 3, pOp: 40, theme: "",
     hotkeys: true, autoFs: true,
-    hkSettings: "ctrl+.", hkGalaxy: "ctrl+alt+g", hkNews: "ctrl+alt+n", hkSound: "ctrl+alt+m", ctrl+c: true, showGear: false, v4: 0,
+    hkSettings: "ctrl+.", hkGalaxy: "ctrl+alt+g", hkNews: "ctrl+alt+n", hkSound: "ctrl+alt+m", rightClick: true, showGear: false, v4: 0,
     wLc: false, wGr: false, wOtd: false, wTm: false, wSnd: false, wRadio: false, wWm: false,
     histDays: 30, histPages: 3, lcStyle: "radial", lcLabels: true, grWeeks: 26, grLabels: true, grShape: "rounded",
     otdYears: "1,2,5", otdCount: 3, tmUser: "", tmPeriod: "overall", tmCount: 50,
@@ -452,7 +454,7 @@
   if (OVERLAY) {
     var qv = function (k, d) { return QP.has(k) ? QP.get(k) : d; };
     Object.assign(S, { user: qv("user", S.user), key: qv("key", S.key), demo: false, showSearch: false, showClock: false, showLinks: false, showNotes: false, showRecent: false,
-      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, ctrl+i: false, showGear: false, news: false, bgMode: "art", notify: false,
+      showBlur: false, hotkeys: false, autoFs: false, autoFocus: false, typeToSearch: false, rightClick: false, showGear: false, news: false, bgMode: "art", notify: false,
       faviconArt: false, sndOn: false, ccOn: false, showStatus: qv("status", "1") === "1", showVinyl: qv("vinyl", "1") === "1", showCover: qv("cover", "1") === "1",
       showText: qv("text", "1") === "1", showViz: qv("viz", "0") === "1", ovScale: +qv("scale", 100), ovAlign: qv("align", "left") });
     ["wPomo", "wTodo", "wCd", "wWc", "wYear", "wCal", "wQuote", "wLc", "wGr", "wOtd", "wTm", "wSnd", "wRadio", "wWm"].forEach(function (k) { S[k] = false; });
@@ -603,7 +605,7 @@
     lcLabels: "Hour labels", grLabels: "Totals and streak", gxLabels: "Artist names", gxEdges: "Similarity links", skySun: "Sun and moon", skyStars: "Stars", skyClouds: "Clouds",
     news: "Newspaper mode", newsGray: "Black-and-white cover", sndOn: "Soundscapes on", wmTemp: "Temperature shifts the key", ccOn: "Commit vinyl grooves",
     shareApply: "Apply setups from share links", ovVinyl: "Show vinyl", ovCover: "Show cover", ovText: "Show text", ovViz: "Show visualizer",
-    ctrl+i: "Ctrl + I opens settings", showGear: "Show a settings button" });
+    rightClick: "Right-click opens settings", showGear: "Show a settings button" });
   Object.assign(sliders, { histDays: ["Days of history", 7, 365, 1, ""], histPages: ["Pages to load (200 plays each)", 1, 10, 1, ""], grWeeks: ["Weeks shown", 8, 52, 1, ""],
     otdCount: ["Songs per year", 1, 6, 1, ""], tmCount: ["Artists compared", 10, 100, 5, ""], gxCount: ["Artists", 8, 40, 1, ""], gxSpin: ["Auto-rotate", 0, 60, 1, " °/s"], gxSize: ["Size", 50, 150, 5, "%"],
     skyWarp: ["Time-lapse (1 = real time)", 1, 3600, 1, "×"], sndMaster: ["Master volume", 0, 100, 1, "%"], radioBpm: ["Tempo", 40, 200, 1, " bpm"], radioRoot: ["Root note (MIDI)", 36, 72, 1, ""],
@@ -697,7 +699,7 @@
   function labs() {
     var T = function (a) { return a.map(toggleRow).join(""); }, L = function (a) { return a.map(sliderRow).join(""); };
     var vc = Object.assign({ "": "Choose…" }, Object.keys(COMM.viz).reduce(function (o, k) { o[k] = k; return o; }, {}));
-    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["ctrl+i", "showGear"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
+    return grp("Hotkeys and controls", hk("hkSettings", "Open / close settings") + hk("hkGalaxy", "Artist galaxy") + hk("hkNews", "Newspaper mode") + hk("hkSound", "Soundscapes on / off") + T(["rightClick", "showGear"]) + '<p class="hint">Click a box and press the keys you want. Backspace clears it.</p>') +
       grp("Listening clock and history", T(["wLc", "lcLabels"]) + sel("lcStyle", "Style", { radial: "Radial", bars: "Bars" }) + L(["histDays", "histPages"])) +
       grp("Listening calendar", T(["wGr", "grLabels"]) + sel("grShape", "Cells", { square: "Square", rounded: "Rounded", circle: "Circles" }) + L(["grWeeks"])) +
       grp("On this day", T(["wOtd"]) + txt("otdYears", "Years ago (comma separated)") + L(["otdCount"])) +
@@ -709,7 +711,8 @@
       grp("Repo radio", T(["wRadio"]) + txt("ghRepo", "GitHub repo (owner/name)") + sel("radioScale", "Scale", { pentatonic: "Pentatonic", major: "Major", minor: "Minor", dorian: "Dorian", blues: "Blues" }) +
         sel("radioWave", "Sound", { sine: "Soft", triangle: "Mellow", square: "Retro", sawtooth: "Bright" }) + L(["radioBpm", "radioRoot", "radioVol", "radioCommits"])) +
       grp("Weather music", T(["wWm", "wmTemp"]) + L(["wmVol", "wmEvery"]) + '<p class="hint">Uses your weather city from Personal settings.</p>') +
-      grp("Commit vinyl", T(["ccOn"]) + txt("ghUser", "GitHub username") + sel("ccSource", "Source", { user: "My public activity", repo: "The repo from Repo radio" }) + sel("ccColor", "Colour", { repo: "By repository", accent: "Accent" }) + L(["ccOp", "ccRings"])) + 
+      grp("Commit vinyl", T(["ccOn"]) + txt("ghUser", "GitHub username") + sel("ccSource", "Source", { user: "My public activity", repo: "The repo from Repo radio" }) + sel("ccColor", "Colour", { repo: "By repository", accent: "Accent" }) + L(["ccOp", "ccRings"])) +
+      grp("Setups and gallery", T(["shareApply"]) + '<button class="reset" id="share">Copy share link</button><p class="hint">Community themes: add them to themes.json in the repo.</p>') +
       grp("Custom visualizer", sel("vizComm", "Community visualizers", vc).replace('data-k="vizComm"', 'id="vizComm"') + area("vizCode", "Your code (choose Custom code as the type)") +
         '<p class="hint">Variables: g (canvas), w, h, lv (levels 0 to 1), t (ms), S (settings), accent. Only paste code you trust.</p>') +
       grp("Streamer overlay (OBS)", T(["ovVinyl", "ovCover", "ovText", "ovViz"]) + L(["ovScale"]) + sel("ovAlign", "Align", { left: "Left", center: "Centre" }) +
@@ -1239,7 +1242,7 @@
   }, true);
   document.addEventListener("contextmenu", function (e) {
     var t = e.target.tagName;
-    if (!S.ctrl+i || OVERLAY || t === "INPUT" || t === "TEXTAREA" || t === "A" || panel.contains(e.target)) return;
+    if (!S.rightClick || OVERLAY || t === "INPUT" || t === "TEXTAREA" || t === "A" || panel.contains(e.target)) return;
     e.preventDefault(); toggleSettings();
   });
   [["themes.json", function (j) { Object.assign(THEMES, j); }], ["visualizers.json", function (j) { COMM.viz = j; }]].forEach(function (p) {
@@ -1612,5 +1615,6 @@
   labsRefresh(); if (S.ccOn) commitLoad();
 })();
 </script>
-</body>
-</html>
+
+
+</body></html>
