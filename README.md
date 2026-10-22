@@ -1,7 +1,4 @@
 <div align="center">
-
-# ℹ️ Firstly, my work isnt fully created by me ive had help with this project, I have no problems with anybody forking this repo and creating things from my project, i would be so grateful if people used my work, And if u do use any of my work maybe just mention me somewhere just in a readme file nothing special, I will also never ask anybody to pay for any of my work all of this is free i want to give this out for more people to grow and create greater things.
-
 ---
 
 # 🎵 Media Player Homepage for Browser
@@ -33,6 +30,8 @@ There is no settings button on the page, i wanted it clean. Instead you can:
 - Press **Ctrl + .** (Ctrl and the full stop key)
 
 Do it again to close it. You can change that shortcut in the settings (the "Hotkeys and controls" part), and if you would rather have a button back there is a switch for it too.
+
+---
 
 ## ✨ Features
 
@@ -215,3 +214,9 @@ Fork the repo, go to **Settings → Pages**, pick the main branch and GitHub hos
 ## ❤️ Credits
 
 Made for anyone who wants their music on their homepage. Powered by [Last.fm](https://www.last.fm/) and [Spotify](https://www.spotify.com/). If you like it a ⭐ on the repo would mean a lot, and if you use any of it just mention me in your readme, thats all i ask.
+
+---
+
+## ℹ️ Extra info
+
+## my work isnt fully created by me ive had help with this project, I have no problems with anybody forking this repo and creating things from my project, i would be so grateful if people used my work, And if u do use any of my work maybe just mention me somewhere just in a readme file nothing special, I will also never ask anybody to pay for any of my work all of this is free i want to give this out for more people to grow and create greater things.
