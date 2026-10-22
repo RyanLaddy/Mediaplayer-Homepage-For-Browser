@@ -26,8 +26,7 @@ Its a free website you can set as your browser's homepage and new tab. It grabs 
 
 There is no settings button on the page, i wanted it clean. Instead you can:
 
-- **Right click** anywhere on the page, or
-- Press **Ctrl + .** (Ctrl and the full stop key)
+- **Use Ctrl + C** anywhere on the page.
 
 Do it again to close it. You can change that shortcut in the settings (the "Hotkeys and controls" part), and if you would rather have a button back there is a switch for it too.
 
