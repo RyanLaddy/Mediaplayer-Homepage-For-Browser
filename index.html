@@ -712,7 +712,6 @@
         sel("radioWave", "Sound", { sine: "Soft", triangle: "Mellow", square: "Retro", sawtooth: "Bright" }) + L(["radioBpm", "radioRoot", "radioVol", "radioCommits"])) +
       grp("Weather music", T(["wWm", "wmTemp"]) + L(["wmVol", "wmEvery"]) + '<p class="hint">Uses your weather city from Personal settings.</p>') +
       grp("Commit vinyl", T(["ccOn"]) + txt("ghUser", "GitHub username") + sel("ccSource", "Source", { user: "My public activity", repo: "The repo from Repo radio" }) + sel("ccColor", "Colour", { repo: "By repository", accent: "Accent" }) + L(["ccOp", "ccRings"])) +
-      grp("PLACEHOLDER1", T(["shareApply"]) + '<button class="reset" id="share">Copy share link</button><p class="hint">Community themes: add them to themes.json in the repo.</p>') +
       grp("Custom visualizer", sel("vizComm", "Community visualizers", vc).replace('data-k="vizComm"', 'id="vizComm"') + area("vizCode", "Your code (choose Custom code as the type)") +
         '<p class="hint">Variables: g (canvas), w, h, lv (levels 0 to 1), t (ms), S (settings), accent. Only paste code you trust.</p>') +
       grp("Streamer overlay (OBS)", T(["ovVinyl", "ovCover", "ovText", "ovViz"]) + L(["ovScale"]) + sel("ovAlign", "Align", { left: "Left", center: "Centre" }) +
